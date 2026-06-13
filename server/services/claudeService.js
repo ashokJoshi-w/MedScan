@@ -1,6 +1,6 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const claude = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const prompts = {
   prescription: (text) => `You are MedScan, a bilingual medical AI assistant. Given this prescription, return ONLY a valid JSON array, no markdown, no explanation:
@@ -17,13 +17,9 @@ Vitals: ${text}`,
 };
 
 export const analyzeText = async (text, mode) => {
-  const message = await claude.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 1024,
-    messages: [{ role: "user", content: prompts[mode](text) }],
-  });
-
-  const raw = message.content[0].text;
+  const model = gemini.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const result = await model.generateContent(prompts[mode](text));
+  const raw = result.response.text();
   const clean = raw.replace(/```json|```/g, "").trim();
   return JSON.parse(clean);
 };
