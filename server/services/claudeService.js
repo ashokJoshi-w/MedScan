@@ -17,9 +17,10 @@ Vitals: ${text}`,
 };
 
 export const analyzeText = async (text, mode) => {
-  const model = gemini.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = gemini.getGenerativeModel({ model: "gemini-2.0-flash" });
   const result = await model.generateContent(prompts[mode](text));
   const raw = result.response.text();
+  console.log("Raw response:", raw);
   const clean = raw.replace(/```json|```/g, "").trim();
   return JSON.parse(clean);
 };
