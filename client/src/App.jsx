@@ -1,4 +1,9 @@
 import { useState } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import ProtectedRoute from './pages/ProtectedRoute'
+import AuthPage from './pages/AuthPage'
+
 import Header from './components/layout/Header'
 import TabNav from './components/layout/TabNav'
 import PrescriptionTab from './components/tabs/PrescriptionTab'
@@ -13,9 +18,8 @@ const tabs = {
   history: <HistoryTab />,
 }
 
-const App = () => {
+const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('prescription')
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -24,6 +28,25 @@ const App = () => {
         <div>{tabs[activeTab]}</div>
       </main>
     </div>
+  )
+}
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<AuthPage />} />
+          <Route path="/signup" element={<AuthPage />} />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 
