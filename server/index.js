@@ -7,7 +7,7 @@ import analyzeRoute from "./routes/analyze.js";
 import authRoute from "./routes/auth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.join(__dirname, "../.env") });
+dotenv.config();
 
 if (!process.env.JWT_SECRET) {
   process.env.JWT_SECRET = "dev-secret-change-in-production";
