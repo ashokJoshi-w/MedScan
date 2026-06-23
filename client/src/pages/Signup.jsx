@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { API_BASE } from "../config";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-export default function Login({ onSwitch }) {
+export default function Signup({ onSwitch }) {
   const { login } = useAuth();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "", role: "doctor" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -15,18 +16,32 @@ export default function Login({ onSwitch }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+    if (form.password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
+      const res = await fetch(`${API_BASE}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ name: form.name, email: form.email, password: form.password, role: form.role }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Login failed");
+      if (!res.ok) throw new Error(data.message || "Signup failed");
       login(data.user, data.token);
+      navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError(err.message);
+      const msg = err.message === "Failed to fetch"
+        ? "Cannot reach server. Run `npm run dev:server` from the project root."
+        : err.message;
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -79,8 +94,8 @@ export default function Login({ onSwitch }) {
         {/* ── Form Panel ── */}
         <div className="w-full md:w-1/2 bg-slate-900 p-10 flex items-center justify-center">
           <div className="w-full max-w-sm">
-            <h2 className="text-2xl font-bold text-white mb-1">Welcome back</h2>
-            <p className="text-slate-400 text-sm mb-8">Sign in to your MedScan account</p>
+            <h2 className="text-2xl font-bold text-white mb-1">Create account</h2>
+            <p className="text-slate-400 text-sm mb-8">Join MedScan to get started</p>
 
             {error && (
               <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-lg mb-6">
@@ -88,7 +103,22 @@ export default function Login({ onSwitch }) {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5">
+                  Full name
+                </label>
+                <input
+                  name="name"
+                  type="text"
+                  required
+                  placeholder="Dr. Jane Smith"
+                  value={form.name}
+                  onChange={handleChange}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition"
+                />
+              </div>
+
               <div>
                 <label className="block text-xs font-medium text-slate-400 mb-1.5">
                   Email address
@@ -105,16 +135,46 @@ export default function Login({ onSwitch }) {
               </div>
 
               <div>
-                <label className="flex justify-between text-xs font-medium text-slate-400 mb-1.5">
+                <label className="block text-xs font-medium text-slate-400 mb-1.5">
+                  Role
+                </label>
+                <select
+                  name="role"
+                  value={form.role}
+                  onChange={handleChange}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition"
+                >
+                  <option value="doctor">Doctor</option>
+                  <option value="radiologist">Radiologist</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5">
                   Password
-                  <a href="#" className="text-teal-400 hover:underline">Forgot password?</a>
                 </label>
                 <input
                   name="password"
                   type="password"
                   required
-                  placeholder="••••••••"
+                  placeholder="Min. 8 characters"
                   value={form.password}
+                  onChange={handleChange}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5">
+                  Confirm password
+                </label>
+                <input
+                  name="confirmPassword"
+                  type="password"
+                  required
+                  placeholder="Re-enter your password"
+                  value={form.confirmPassword}
                   onChange={handleChange}
                   className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition"
                 />
@@ -130,14 +190,14 @@ export default function Login({ onSwitch }) {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                   </svg>
-                ) : "Sign in"}
+                ) : "Create account"}
               </button>
             </form>
 
             <p className="text-center text-slate-500 text-xs mt-6">
-              Don't have an account?{" "}
+              Already have an account?{" "}
               <button onClick={onSwitch} className="text-teal-400 hover:underline">
-                Create account
+                Sign in
               </button>
             </p>
           </div>

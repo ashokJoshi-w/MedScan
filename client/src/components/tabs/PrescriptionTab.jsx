@@ -72,7 +72,19 @@ const PrescriptionTab = () => {
         </div>
       )}
 
-      {result && Array.isArray(result) && (
+      {result && !Array.isArray(result) && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800">
+          Analysis completed but returned an unexpected format. Try again with clearer text or a sharper image.
+        </div>
+      )}
+
+      {result && Array.isArray(result) && result.length === 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800">
+          No medicines were detected. Try uploading a clearer image or pasting the prescription text.
+        </div>
+      )}
+
+      {result && Array.isArray(result) && result.length > 0 && (
         <div className="space-y-3">
           <p className="text-xs font-medium text-muted uppercase tracking-wide px-1">
             {result.length} medicine{result.length !== 1 ? 's' : ''} found

@@ -1,6 +1,12 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const getGemini = () => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey || apiKey === "your_gemini_api_key_here") {
+    throw new Error("GEMINI_API_KEY is not configured. Add a valid key to your .env file.");
+  }
+  return new GoogleGenerativeAI(apiKey);
+};
 
 const prompts = {
   prescription: (text) => `You are MedScan, a bilingual medical AI assistant. Given this prescription, return ONLY a valid JSON array, no markdown, no explanation:
@@ -16,11 +22,34 @@ Lab results: ${text}`,
 Vitals: ${text}`,
 };
 
+const parseJsonResponse = (raw) => {
+  const clean = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+  try {
+    return JSON.parse(clean);
+  } catch {
+    throw new Error("AI returned an invalid response. Please try again.");
+  }
+};
+
+const friendlyGeminiError = (err) => {
+  const msg = err.message || "";
+  if (msg.includes("API key not valid") || msg.includes("API_KEY_INVALID")) {
+    return new Error("GEMINI_API_KEY is invalid. Get a key at https://aistudio.google.com/apikey and update your .env file.");
+  }
+  return err;
+};
+
 export const analyzeText = async (text, mode) => {
-  const model = gemini.getGenerativeModel({ model: "gemini-2.0-flash" });
-  const result = await model.generateContent(prompts[mode](text));
-  const raw = result.response.text();
-  console.log("Raw response:", raw);
-  const clean = raw.replace(/```json|```/g, "").trim();
-  return JSON.parse(clean);
+  const prompt = prompts[mode];
+  if (!prompt) throw new Error(`Unknown analysis mode: ${mode}`);
+
+  try {
+    const gemini = getGemini();
+    const model = gemini.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const result = await model.generateContent(prompt(text));
+    const raw = result.response.text();
+    return parseJsonResponse(raw);
+  } catch (err) {
+    throw friendlyGeminiError(err);
+  }
 };

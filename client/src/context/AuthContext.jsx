@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { API_BASE } from "../config";
 
 const AuthContext = createContext(null);
 
@@ -8,11 +9,28 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("medscan_token");
-    const userData = localStorage.getItem("medscan_user");
-    if (token && userData) {
-      setUser(JSON.parse(userData));
+    if (!token) {
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+
+    fetch(`${API_BASE}/api/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Session invalid");
+        return res.json();
+      })
+      .then((userData) => {
+        setUser(userData);
+        localStorage.setItem("medscan_user", JSON.stringify(userData));
+      })
+      .catch(() => {
+        localStorage.removeItem("medscan_token");
+        localStorage.removeItem("medscan_user");
+        setUser(null);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const login = (userData, token) => {

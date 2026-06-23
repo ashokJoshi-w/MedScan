@@ -1,9 +1,32 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-// ─── In-memory user store (replace with your DB) ───────────────────────────
-// Example with MongoDB/Mongoose — swap the functions below with real DB calls.
-const users = new Map(); // email → user object
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const USERS_FILE = path.join(__dirname, "../data/users.json");
+
+const users = new Map();
+
+const loadUsers = () => {
+  try {
+    if (!fs.existsSync(USERS_FILE)) return;
+    const data = JSON.parse(fs.readFileSync(USERS_FILE, "utf-8"));
+    for (const user of data) {
+      users.set(user.email, user);
+    }
+  } catch (err) {
+    console.error("Failed to load users:", err.message);
+  }
+};
+
+const saveUsers = () => {
+  fs.mkdirSync(path.dirname(USERS_FILE), { recursive: true });
+  fs.writeFileSync(USERS_FILE, JSON.stringify([...users.values()], null, 2));
+};
+
+loadUsers();
 
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -19,7 +42,6 @@ const safeUser = (user) => ({
   createdAt: user.createdAt,
 });
 
-// ─── signup ────────────────────────────────────────────────────────────────
 const signup = async ({ name, email, password, role = "doctor" }) => {
   const normalizedEmail = email.toLowerCase().trim();
 
@@ -44,12 +66,12 @@ const signup = async ({ name, email, password, role = "doctor" }) => {
   };
 
   users.set(normalizedEmail, user);
+  saveUsers();
 
   const token = generateToken(user.id);
   return { user: safeUser(user), token };
 };
 
-// ─── login ────────────────────────────────────────────────────────────────
 const login = async ({ email, password }) => {
   const normalizedEmail = email.toLowerCase().trim();
   const user = users.get(normalizedEmail);
@@ -67,7 +89,6 @@ const login = async ({ email, password }) => {
   return { user: safeUser(user), token };
 };
 
-// ─── getMe ────────────────────────────────────────────────────────────────
 const getMe = async (userId) => {
   for (const user of users.values()) {
     if (user.id === userId) return safeUser(user);
@@ -75,25 +96,4 @@ const getMe = async (userId) => {
   throw new Error("User not found.");
 };
 
-module.exports = { signup, login, getMe };
-
-// ────────────────────────────────────────────────────────────────────────────
-// MONGOOSE EXAMPLE — replace the Map above with these if using MongoDB:
-//
-// const User = require("../models/User");
-//
-// const signup = async ({ name, email, password, role }) => {
-//   const exists = await User.findOne({ email: email.toLowerCase() });
-//   if (exists) throw new Error("An account with this email already exists.");
-//   const user = await User.create({ name, email: email.toLowerCase(), password, role });
-//   const token = generateToken(user._id);
-//   return { user: { id: user._id, name: user.name, email: user.email, role: user.role }, token };
-// };
-//
-// const login = async ({ email, password }) => {
-//   const user = await User.findOne({ email: email.toLowerCase() }).select("+password");
-//   if (!user || !(await user.comparePassword(password)))
-//     throw new Error("Invalid email or password.");
-//   const token = generateToken(user._id);
-//   return { user: { id: user._id, name: user.name, email: user.email, role: user.role }, token };
-// };
+export { signup, login, getMe };

@@ -1,13 +1,19 @@
+import { API_BASE } from "../config";
+
 export const analyzeRequest = async (payload) => {
-  const res = await fetch("/api/analyze", {
+  const token = localStorage.getItem("medscan_token");
+  const headers = { "Content-Type": "application/json" };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const res = await fetch(`${API_BASE}/api/analyze`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(payload),
   });
 
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error || "Request failed");
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || err.message || "Request failed");
   }
 
   return res.json();

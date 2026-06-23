@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import { API_BASE } from "../config";
 
 export default function Login({ onSwitch }) {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,8 +26,12 @@ export default function Login({ onSwitch }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Login failed");
       login(data.user, data.token);
+      navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError(err.message);
+      const msg = err.message === "Failed to fetch"
+        ? "Cannot reach server. Run `npm run dev:server` from the project root."
+        : err.message;
+      setError(msg);
     } finally {
       setLoading(false);
     }
