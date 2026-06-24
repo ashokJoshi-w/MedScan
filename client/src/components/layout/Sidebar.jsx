@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import {
   LayoutDashboard,
   FileText,
@@ -30,52 +31,59 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="hidden md:flex fixed left-0 top-0 h-screen w-60 flex-col bg-white border-r border-gray-200 z-30">
+    <aside className="hidden md:flex fixed left-0 top-0 h-screen w-60 flex-col bg-white/80 backdrop-blur-xl border-r border-gray-200/80 z-30 shadow-sm">
       <div className="flex items-center gap-2.5 px-5 py-6 border-b border-gray-100">
-        <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-md shadow-primary/20"
+        >
           <HeartPulse className="w-5 h-5 text-white" />
-        </div>
-        <span className="text-lg font-bold text-gray-900">MedScan</span>
+        </motion.div>
+        <span className="text-lg font-bold text-ink">MedScan</span>
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map(({ to, label, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors border-l-4 ${
-                isActive
-                  ? 'bg-primary-light text-primary-darker border-primary'
-                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700 border-transparent'
-              }`
-            }
-          >
-            <Icon className="w-5 h-5 shrink-0" />
-            {label}
+          <NavLink key={to} to={to}>
+            {({ isActive }) => (
+              <motion.div
+                whileHover={{ x: 4 }}
+                whileTap={{ scale: 0.98 }}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors border-l-[3px] ${
+                  isActive
+                    ? 'bg-primary-light text-primary-darker border-primary shadow-sm'
+                    : 'text-ink-muted hover:bg-gray-50 hover:text-ink border-transparent'
+                }`}
+              >
+                <Icon className="w-5 h-5 shrink-0" />
+                {label}
+              </motion.div>
+            )}
           </NavLink>
         ))}
       </nav>
 
       <div className="px-4 py-4 border-t border-gray-100">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 rounded-full bg-primary-light text-primary-darker flex items-center justify-center text-sm font-semibold">
+        <div className="flex items-center gap-3 mb-3 p-2 rounded-xl bg-gray-50/80">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-light to-teal-100 text-primary-darker flex items-center justify-center text-sm font-bold ring-2 ring-white">
             {initial}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">{displayName}</p>
+            <p className="text-sm font-semibold text-ink truncate">{displayName}</p>
             {user?.email && (
-              <p className="text-xs text-gray-500 truncate">{user.email}</p>
+              <p className="text-xs text-ink-faint truncate">{user.email}</p>
             )}
           </div>
         </div>
-        <button
+        <motion.button
+          whileHover={{ x: 2 }}
+          whileTap={{ scale: 0.98 }}
           onClick={handleLogout}
-          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer"
+          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-ink-muted hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
         >
           <LogOut className="w-4 h-4" />
           Log out
-        </button>
+        </motion.button>
       </div>
     </aside>
   )

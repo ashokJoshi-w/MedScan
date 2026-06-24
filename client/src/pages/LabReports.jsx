@@ -46,7 +46,7 @@ export default function LabReports() {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6 items-start">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className="card-interactive p-6">
           <UploadZone
             file={file}
             onFileSelect={setFile}
@@ -81,7 +81,7 @@ export default function LabReports() {
           />
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 min-h-[320px]">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-6 min-h-[320px]">
           {result ? (
             <div className="space-y-5">
               <div className="flex items-center justify-between gap-3">

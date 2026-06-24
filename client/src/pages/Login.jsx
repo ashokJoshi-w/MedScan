@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { HeartPulse, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { API_BASE } from '../config'
@@ -79,7 +80,12 @@ export default function Login({ onSwitch }) {
       </div>
 
       {/* Form panel */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-surface">
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="flex-1 flex items-center justify-center px-6 py-12 bg-surface"
+      >
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
@@ -161,7 +167,7 @@ export default function Login({ onSwitch }) {
             </button>
           </p>
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

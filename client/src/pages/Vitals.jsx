@@ -52,6 +52,7 @@ export default function Vitals() {
 
   useEffect(() => {
     localStorage.setItem(VITALS_KEY, JSON.stringify(logs))
+    window.dispatchEvent(new Event('medscan-vitals-update'))
   }, [logs])
 
   const hasInput = Object.values(values).some((v) => v)
