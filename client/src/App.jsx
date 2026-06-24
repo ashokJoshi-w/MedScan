@@ -1,49 +1,30 @@
-import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
-import ProtectedRoute from './pages/ProtectedRoute'
 import AuthPage from './pages/AuthPage'
-
-import Header from './components/layout/Header'
-import TabNav from './components/layout/TabNav'
-import PrescriptionTab from './components/tabs/PrescriptionTab'
-import LabTab from './components/tabs/LabTab'
-import VitalsTab from './components/tabs/VitalsTab'
-import HistoryTab from './components/tabs/HistoryTab'
-
-const tabs = {
-  prescription: <PrescriptionTab />,
-  lab: <LabTab />,
-  vitals: <VitalsTab />,
-  history: <HistoryTab />,
-}
-
-const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState('prescription')
-  return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="max-w-2xl mx-auto px-4 py-5 space-y-4">
-        <TabNav active={activeTab} setActive={setActiveTab} />
-        <div>{tabs[activeTab]}</div>
-      </main>
-    </div>
-  )
-}
+import DashboardLayout from './components/layout/DashboardLayout'
+import Home from './pages/Home'
+import Dashboard from './pages/Dashboard'
+import Prescription from './pages/Prescription'
+import LabReports from './pages/LabReports'
+import Vitals from './pages/Vitals'
+import History from './pages/History'
 
 const App = () => {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<AuthPage />} />
           <Route path="/signup" element={<AuthPage />} />
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/prescription" element={<Prescription />} />
+            <Route path="/lab-reports" element={<LabReports />} />
+            <Route path="/vitals" element={<Vitals />} />
+            <Route path="/history" element={<History />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

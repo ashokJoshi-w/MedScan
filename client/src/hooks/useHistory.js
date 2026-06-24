@@ -8,14 +8,26 @@ const useHistory = () => {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const addToHistory = (entry) => {
-    const updated = [
-      { ...entry, date: new Date().toLocaleString("en-IN") },
-      ...history,
-    ].slice(0, 20);
-
+  const persist = (updated) => {
     setHistory(updated);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  };
+
+  const addToHistory = (entry) => {
+    const updated = [
+      {
+        ...entry,
+        id: entry.id ?? Date.now(),
+        date: entry.date ?? new Date().toLocaleString("en-IN"),
+        status: entry.status ?? "normal",
+      },
+      ...history,
+    ].slice(0, 50);
+    persist(updated);
+  };
+
+  const removeFromHistory = (id) => {
+    persist(history.filter((item, index) => (item.id ?? index) !== id));
   };
 
   const clearHistory = () => {
@@ -23,7 +35,7 @@ const useHistory = () => {
     localStorage.removeItem(STORAGE_KEY);
   };
 
-  return { history, addToHistory, clearHistory };
+  return { history, addToHistory, removeFromHistory, clearHistory };
 };
 
 export default useHistory;

@@ -4,13 +4,17 @@ export default {
     extend: {
       colors: {
         primary: {
+          DEFAULT: '#1D9E75',
+          light: '#E1F5EE',
+          dark: '#0F6E56',
+          darker: '#085041',
           50:  '#F0FDF9',
           100: '#CCFBEF',
           500: '#0D9488',
           600: '#0F766E',
           700: '#115E59',
         },
-        surface: '#FFFFFF',
+        surface: '#F8FAFB',
         background: '#F8FAFB',
         border: '#E2E8F0',
         muted: '#64748B',

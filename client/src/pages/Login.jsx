@@ -1,153 +1,167 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { API_BASE } from "../config";
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { HeartPulse, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
+import { API_BASE } from '../config'
 
 export default function Login({ onSwitch }) {
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { login } = useAuth()
+  const navigate = useNavigate()
+  const [form, setForm] = useState({ email: '', password: '' })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (e) =>
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+    e.preventDefault()
+    setError('')
+    setLoading(true)
     try {
       const res = await fetch(`${API_BASE}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Login failed");
-      login(data.user, data.token);
-      navigate("/dashboard", { replace: true });
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || 'Login failed')
+      login(data.user, data.token)
+      navigate('/dashboard', { replace: true })
     } catch (err) {
-      const msg = err.message === "Failed to fetch"
-        ? "Cannot reach server. Run `npm run dev:server` from the project root."
-        : err.message;
-      setError(msg);
+      const msg = err.message === 'Failed to fetch'
+        ? 'Cannot reach server. Run `npm run dev:server` from the project root.'
+        : err.message
+      setError(msg)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center bg-slate-950 px-4"
-      style={{
-        backgroundImage: "radial-gradient(circle, rgba(0,201,177,0.06) 1px, transparent 1px)",
-        backgroundSize: "28px 28px",
-      }}
-    >
-      <div className="w-full max-w-4xl flex rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+    <div className="min-h-screen flex">
+      {/* Brand panel */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-primary-darker via-primary-dark to-primary p-12 flex-col justify-between overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 -left-20 w-80 h-80 bg-white rounded-full blur-3xl" />
+          <div className="absolute bottom-20 -right-20 w-96 h-96 bg-teal-200 rounded-full blur-3xl" />
+        </div>
 
-        {/* ── Brand Panel ── */}
-        <div className="hidden md:flex flex-col justify-center w-1/2 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-12 border-r border-slate-800 relative overflow-hidden">
-          <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-teal-400 to-transparent opacity-50 top-1/3" />
-
-          <div className="mb-6">
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-              <rect x="4" y="4" width="40" height="40" rx="8" stroke="#2DD4BF" strokeWidth="2" />
-              <path d="M14 24h4l3-8 4 16 3-10 3 6 3-4h4" stroke="#2DD4BF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+        <Link to="/" className="relative flex items-center gap-2.5 text-white">
+          <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+            <HeartPulse className="w-5 h-5" />
           </div>
+          <span className="text-xl font-bold">MedScan</span>
+        </Link>
 
-          <h1 className="text-3xl font-bold text-white mb-3 tracking-tight">MedScan</h1>
-          <p className="text-slate-400 text-sm leading-relaxed mb-10 max-w-xs">
-            AI-powered medical imaging analysis for faster, more confident diagnoses.
+        <div className="relative">
+          <h1 className="text-4xl font-extrabold text-white leading-tight">
+            Your health data,<br />clearly explained.
+          </h1>
+          <p className="mt-4 text-teal-100 text-lg leading-relaxed max-w-md">
+            AI-powered analysis for prescriptions, lab reports, and vitals — in English and Hindi.
           </p>
-
-          <div className="flex items-center gap-6">
-            <div>
-              <p className="text-2xl font-bold text-teal-400">98.4%</p>
-              <p className="text-xs text-slate-500 uppercase tracking-widest mt-0.5">Accuracy</p>
-            </div>
-            <div className="w-px h-8 bg-slate-700" />
-            <div>
-              <p className="text-2xl font-bold text-teal-400">2.3s</p>
-              <p className="text-xs text-slate-500 uppercase tracking-widest mt-0.5">Avg scan</p>
-            </div>
-            <div className="w-px h-8 bg-slate-700" />
-            <div>
-              <p className="text-2xl font-bold text-teal-400">50K+</p>
-              <p className="text-xs text-slate-500 uppercase tracking-widest mt-0.5">Scans</p>
-            </div>
+          <div className="mt-10 grid grid-cols-3 gap-4">
+            {[
+              { value: '3-in-1', label: 'Health tools' },
+              { value: '< 5s', label: 'Analysis time' },
+              { value: 'Free', label: 'To get started' },
+            ].map(({ value, label }) => (
+              <div key={label} className="bg-white/10 backdrop-blur rounded-2xl p-4 border border-white/10">
+                <p className="text-2xl font-bold text-white">{value}</p>
+                <p className="text-xs text-teal-200 mt-1">{label}</p>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* ── Form Panel ── */}
-        <div className="w-full md:w-1/2 bg-slate-900 p-10 flex items-center justify-center">
-          <div className="w-full max-w-sm">
-            <h2 className="text-2xl font-bold text-white mb-1">Welcome back</h2>
-            <p className="text-slate-400 text-sm mb-8">Sign in to your MedScan account</p>
+        <p className="relative text-teal-200/60 text-sm">&copy; {new Date().getFullYear()} MedScan</p>
+      </div>
 
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-lg mb-6">
-                {error}
-              </div>
-            )}
+      {/* Form panel */}
+      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-surface">
+        <div className="w-full max-w-md">
+          <div className="lg:hidden flex items-center gap-2 mb-8">
+            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
+              <HeartPulse className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-lg font-bold text-gray-900">MedScan</span>
+          </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                  Email address
-                </label>
+          <Link to="/" className="text-sm text-gray-500 hover:text-primary transition-colors mb-6 inline-block">
+            &larr; Back to home
+          </Link>
+
+          <h2 className="text-2xl font-bold text-gray-900">Welcome back</h2>
+          <p className="text-gray-500 text-sm mt-1 mb-8">Sign in to your MedScan account</p>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl mb-6">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                Email address
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   name="email"
                   type="email"
                   required
-                  placeholder="doctor@hospital.com"
+                  placeholder="you@example.com"
                   value={form.email}
                   onChange={handleChange}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition"
+                  className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-xl bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
                 />
               </div>
+            </div>
 
-              <div>
-                <label className="flex justify-between text-xs font-medium text-slate-400 mb-1.5">
-                  Password
-                  <a href="#" className="text-teal-400 hover:underline">Forgot password?</a>
-                </label>
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   name="password"
                   type="password"
                   required
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                   value={form.password}
                   onChange={handleChange}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition"
+                  className="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-xl bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
                 />
               </div>
+            </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-teal-500 hover:bg-teal-400 disabled:opacity-60 disabled:cursor-not-allowed text-slate-950 font-semibold py-2.5 rounded-lg text-sm transition flex items-center justify-center mt-2"
-              >
-                {loading ? (
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                  </svg>
-                ) : "Sign in"}
-              </button>
-            </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark disabled:opacity-60 text-white font-semibold py-3 rounded-xl text-sm transition-all shadow-sm shadow-primary/20 cursor-pointer disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  Sign in
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </form>
 
-            <p className="text-center text-slate-500 text-xs mt-6">
-              Don't have an account?{" "}
-              <button onClick={onSwitch} className="text-teal-400 hover:underline">
-                Create account
-              </button>
-            </p>
-          </div>
+          <p className="text-center text-gray-500 text-sm mt-8">
+            Don&apos;t have an account?{' '}
+            <button type="button" onClick={onSwitch} className="text-primary font-semibold hover:text-primary-dark cursor-pointer">
+              Create account
+            </button>
+          </p>
         </div>
       </div>
     </div>
-  );
+  )
 }
