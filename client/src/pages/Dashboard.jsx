@@ -27,7 +27,7 @@ const typeIcons = {
 const quickActions = [
   { to: '/upload-report', label: 'Upload Report', desc: 'Analyse lab results', icon: Upload, color: 'bg-blue-50 text-accent-blue' },
   { to: '/prescription', label: 'Add Prescription', desc: 'Decode medicines', icon: Pill, color: 'bg-primary-50 text-primary' },
-  { to: '/vitals', label: 'Log Vitals', desc: 'Track health metrics', icon: HeartPulse, color: 'bg-green-50 text-success' },
+  { to: '/vitals', label: 'Log Vitals', desc: 'Track health metrics', icon: HeartPulse, color: 'bg-red-50 text-success' },
   { to: '/health-insights', label: 'View Insights', desc: 'AI recommendations', icon: Sparkles, color: 'bg-amber-50 text-warning' },
 ]
 
