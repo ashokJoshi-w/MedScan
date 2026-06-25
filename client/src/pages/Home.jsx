@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { motion, useScroll, useTransform } from 'framer-motion'
 import {
   FileText,
   FlaskConical,
@@ -10,261 +9,225 @@ import {
   Globe,
   CheckCircle2,
   Sparkles,
-  BarChart3,
   Clock,
   ChevronRight,
+  Lock,
+  Star,
+  Upload,
+  Brain,
+  TrendingUp,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import MarketingNavbar from '../components/layout/MarketingNavbar'
+import Footer from '../components/layout/Footer'
 import { FadeIn, Stagger, StaggerItem, HoverLift } from '../components/ui/motion'
 
 const features = [
   {
-    icon: FileText,
-    title: 'Prescription Analysis',
-    description: 'Upload a photo or paste text — get every medicine explained with dosage, frequency, and AI summary.',
-    gradient: 'from-teal-400 to-emerald-600',
-    bg: 'bg-teal-500/10',
-    border: 'border-teal-500/20',
+    icon: Brain,
+    title: 'AI Report Analysis',
+    description: 'Upload lab reports and get instant, plain-language explanations of every test result.',
+    color: 'bg-blue-50 text-accent-blue',
   },
   {
-    icon: FlaskConical,
-    title: 'Lab Report Reading',
-    description: 'Decode blood tests and panels. Abnormal values flagged instantly with plain-language meanings.',
-    gradient: 'from-blue-400 to-indigo-600',
-    bg: 'bg-blue-500/10',
-    border: 'border-blue-500/20',
+    icon: FileText,
+    title: 'Prescription Understanding',
+    description: 'Decode prescriptions with clear medicine names, dosages, schedules, and side effects.',
+    color: 'bg-primary-50 text-primary',
   },
   {
     icon: HeartPulse,
     title: 'Vitals Tracking',
-    description: 'Log BP, heart rate, and weight. Visualize trends and get AI health summaries over time.',
-    gradient: 'from-rose-400 to-pink-600',
-    bg: 'bg-rose-500/10',
-    border: 'border-rose-500/20',
+    description: 'Log blood pressure, heart rate, and weight. Visualize trends over time.',
+    color: 'bg-green-50 text-success',
+  },
+  {
+    icon: Clock,
+    title: 'Medical History',
+    description: 'Keep a complete timeline of uploads, analyses, prescriptions, and vitals.',
+    color: 'bg-amber-50 text-warning',
   },
 ]
 
 const steps = [
-  { num: '01', title: 'Upload or enter data', desc: 'Prescription image, lab values, or vitals' },
-  { num: '02', title: 'AI analyses instantly', desc: 'Powered by medical-grade language models' },
-  { num: '03', title: 'Get clear insights', desc: 'Bilingual summaries you can actually understand' },
+  { num: '1', title: 'Upload', desc: 'Add your prescription, lab report, or vitals data', icon: Upload },
+  { num: '2', title: 'AI Analysis', desc: 'Our medical AI processes and interprets your data', icon: Sparkles },
+  { num: '3', title: 'Health Insights', desc: 'Receive clear, actionable health recommendations', icon: TrendingUp },
 ]
 
-const trustItems = [
-  { icon: Shield, label: 'Secure & private' },
-  { icon: Zap, label: 'Results in seconds' },
-  { icon: Globe, label: 'English & Hindi' },
-  { icon: Clock, label: 'Full history tracking' },
+const benefits = [
+  { icon: Shield, title: 'Secure & Private', desc: 'Your health data is encrypted and never shared without consent.' },
+  { icon: Zap, title: 'Instant Results', desc: 'Get AI-powered analysis in seconds, not days.' },
+  { icon: Globe, title: 'Bilingual Support', desc: 'Understand your health in English or Hindi.' },
+  { icon: Lock, title: 'HIPAA-Inspired', desc: 'Built with healthcare privacy standards in mind.' },
 ]
 
-function DashboardPreview() {
+const testimonials = [
+  { name: 'Dr. Priya Sharma', role: 'General Physician', text: 'MedScan helps my patients understand their lab results before they even walk into my clinic.', rating: 5 },
+  { name: 'Rajesh Kumar', role: 'Patient', text: 'Finally I can understand what my prescriptions mean. The AI explanations are incredibly clear.', rating: 5 },
+  { name: 'Anita Desai', role: 'Caregiver', text: 'Tracking my mother\'s vitals and reports in one place has been a game changer for our family.', rating: 5 },
+]
+
+function HealthIllustration() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 40, rotateX: 8 }}
-      animate={{ opacity: 1, y: 0, rotateX: 0 }}
-      transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="relative mx-auto max-w-lg perspective-1000"
-    >
-      <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-violet-500/10 to-blue-500/20 rounded-3xl blur-2xl animate-pulse-glow" />
-      <div className="relative glass-dark rounded-2xl overflow-hidden shadow-2xl border border-white/10">
-        <div className="flex items-center gap-2 px-4 py-3 bg-black/20 border-b border-white/10">
-          <div className="w-3 h-3 rounded-full bg-red-400/80" />
-          <div className="w-3 h-3 rounded-full bg-amber-400/80" />
-          <div className="w-3 h-3 rounded-full bg-green-400/80" />
-          <span className="ml-2 text-xs text-white/40">MedScan Dashboard</span>
+    <div className="relative">
+      <div className="absolute -inset-4 bg-primary/5 rounded-3xl blur-2xl" />
+      <div className="relative bg-white rounded-2xl border border-border shadow-soft p-6 animate-float">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <p className="text-xs font-medium text-ink-muted">Health Summary</p>
+            <p className="text-lg font-bold text-ink mt-0.5">Your wellness at a glance</p>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center">
+            <HeartPulse className="w-5 h-5 text-primary" />
+          </div>
         </div>
-        <div className="p-5 space-y-4">
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { label: 'Analyses', val: '12', color: 'bg-teal-500/20 text-teal-300' },
-              { label: 'Prescriptions', val: '5', color: 'bg-blue-500/20 text-blue-300' },
-              { label: 'Vitals', val: '8', color: 'bg-rose-500/20 text-rose-300' },
-            ].map(({ label, val, color }) => (
-              <div key={label} className={`rounded-xl p-3 ${color}`}>
-                <p className="text-lg font-bold">{val}</p>
-                <p className="text-[10px] opacity-70">{label}</p>
-              </div>
-            ))}
+
+        <div className="space-y-3">
+          {[
+            { label: 'Prescription decoded', status: 'Complete', color: 'text-success' },
+            { label: 'Lab report analysed', status: '2 flagged', color: 'text-warning' },
+            { label: 'Vitals logged today', status: 'Normal', color: 'text-success' },
+          ].map(({ label, status, color }) => (
+            <div key={label} className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border">
+              <span className="text-sm text-ink">{label}</span>
+              <span className={`text-xs font-semibold ${color}`}>{status}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-5 p-4 rounded-xl bg-primary-50 border border-primary/10">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-xs font-semibold text-primary-darker">AI Insight</span>
           </div>
-          <div className="rounded-xl bg-white/5 p-3 space-y-2">
-            {['Amoxicillin Rx analysed', 'CBC Lab Report', 'BP 120/80 logged'].map((item, i) => (
-              <motion.div
-                key={item}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8 + i * 0.15 }}
-                className="flex items-center gap-2 text-xs text-white/70"
-              >
-                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                {item}
-              </motion.div>
-            ))}
-          </div>
-          <div className="h-16 rounded-xl bg-gradient-to-r from-primary/30 to-emerald-500/20 flex items-center justify-center">
-            <BarChart3 className="w-8 h-8 text-primary/60" />
-          </div>
+          <p className="text-sm text-ink-muted leading-relaxed">
+            Your recent vitals are within healthy range. Continue monitoring blood pressure weekly.
+          </p>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
 export default function Home() {
   const { user } = useAuth()
-  const { scrollY } = useScroll()
-  const heroY = useTransform(scrollY, [0, 400], [0, 80])
-  const heroOpacity = useTransform(scrollY, [0, 300], [1, 0.3])
 
   return (
-    <div className="min-h-screen bg-ink overflow-x-hidden">
-      {/* Nav */}
-      <motion.header
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="fixed top-0 left-0 right-0 z-50 glass-dark border-b border-white/5"
-      >
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <motion.div
-              whileHover={{ rotate: [0, -10, 10, 0] }}
-              transition={{ duration: 0.4 }}
-              className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center shadow-glow"
-            >
-              <HeartPulse className="w-5 h-5 text-white" />
-            </motion.div>
-            <span className="text-lg font-bold text-white">MedScan</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            {user ? (
-              <Link to="/dashboard" className="btn-primary text-sm py-2.5 px-5">
-                Dashboard <ArrowRight className="w-4 h-4" />
-              </Link>
-            ) : (
-              <>
-                <Link to="/login" className="text-sm font-medium text-white/70 hover:text-white px-4 py-2 rounded-lg hover:bg-white/5 transition-all">
-                  Sign in
-                </Link>
-                <Link to="/signup" className="btn-primary text-sm py-2.5 px-5">
-                  Get Started
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      </motion.header>
+    <div className="min-h-screen bg-surface">
+      <MarketingNavbar />
 
       {/* Hero */}
-      <section className="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
-        <div className="absolute inset-0 bg-hero-dark" />
-        <div className="absolute inset-0 bg-mesh opacity-60" />
-        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute top-32 left-[10%] w-72 h-72 bg-primary/20 rounded-full blur-[100px] animate-float pointer-events-none" />
-        <motion.div style={{ y: heroY }} className="absolute bottom-20 right-[5%] w-96 h-96 bg-violet-600/15 rounded-full blur-[120px] animate-float-delayed pointer-events-none" />
-        <motion.div style={{ y: heroY }} className="absolute top-1/2 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-blue-500/5 rounded-full blur-[80px] pointer-events-none" />
+      <section className="pt-28 lg:pt-32 pb-20 lg:pb-28">
+        <div className="page-container">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <div>
+              <FadeIn>
+                <span className="section-label mb-6">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  AI-powered healthcare platform
+                </span>
+              </FadeIn>
 
-        <div className="relative max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center w-full">
-          <div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="section-label bg-white/10 text-teal-200 border-white/10 mb-6"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              AI-powered health platform
-            </motion.div>
+              <FadeIn delay={0.1}>
+                <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-bold text-ink tracking-tight leading-[1.1] text-balance">
+                  Your health.{' '}
+                  <span className="text-primary">Understood better.</span>{' '}
+                  Every day.
+                </h1>
+              </FadeIn>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.08] text-balance"
-            >
-              Understand your{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-emerald-400 to-cyan-300">
-                health data
-              </span>{' '}
-              like never before
-            </motion.h1>
+              <FadeIn delay={0.2}>
+                <p className="mt-6 text-lg text-ink-muted leading-relaxed max-w-lg">
+                  MedScan transforms complex medical documents into clear, actionable insights —
+                  so you can take control of your health with confidence.
+                </p>
+              </FadeIn>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="mt-6 text-lg text-white/60 leading-relaxed max-w-lg"
-            >
-              MedScan transforms prescriptions, lab reports, and vitals into clear,
-              actionable insights — in seconds, in your language.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="mt-10 flex flex-col sm:flex-row gap-4"
-            >
-              <Link to={user ? '/dashboard' : '/signup'} className="btn-primary text-base">
-                {user ? 'Open Dashboard' : 'Start Free'}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <a href="#features" className="inline-flex items-center justify-center gap-2 text-white/80 font-semibold px-6 py-3 rounded-xl border border-white/10 hover:bg-white/5 hover:border-white/20 transition-all">
-                See how it works
-                <ChevronRight className="w-4 h-4" />
-              </a>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="mt-12 flex flex-wrap gap-5"
-            >
-              {trustItems.map(({ icon: Icon, label }) => (
-                <div key={label} className="flex items-center gap-2 text-sm text-white/50">
-                  <Icon className="w-4 h-4 text-teal-400" />
-                  {label}
+              <FadeIn delay={0.3}>
+                <div className="mt-10 flex flex-col sm:flex-row gap-4">
+                  <Link to={user ? '/dashboard' : '/signup'} className="btn-primary text-base">
+                    {user ? 'Open Dashboard' : 'Get Started Free'}
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <a href="#how-it-works" className="btn-secondary text-base">
+                    See how it works
+                    <ChevronRight className="w-4 h-4" />
+                  </a>
                 </div>
-              ))}
-            </motion.div>
-          </div>
+              </FadeIn>
 
-          <div className="hidden lg:block">
-            <DashboardPreview />
+              <FadeIn delay={0.4}>
+                <div className="mt-12 flex flex-wrap gap-6">
+                  {[
+                    { icon: Shield, label: 'Secure & private' },
+                    { icon: Zap, label: 'Results in seconds' },
+                    { icon: Globe, label: 'English & Hindi' },
+                  ].map(({ icon: Icon, label }) => (
+                    <div key={label} className="flex items-center gap-2 text-sm text-ink-muted">
+                      <Icon className="w-4 h-4 text-primary" />
+                      {label}
+                    </div>
+                  ))}
+                </div>
+              </FadeIn>
+            </div>
+
+            <FadeIn delay={0.2} className="hidden lg:block">
+              <HealthIllustration />
+            </FadeIn>
           </div>
         </div>
       </section>
 
-      {/* Features — bento grid */}
-      <section id="features" className="relative py-24 bg-surface">
-        <div className="max-w-7xl mx-auto px-6">
+      {/* Quick Actions */}
+      <section className="py-8 border-y border-border bg-white">
+        <div className="page-container">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { icon: Upload, label: 'Upload Report', to: user ? '/upload-report' : '/signup' },
+              { icon: HeartPulse, label: 'Add Vitals', to: user ? '/vitals' : '/signup' },
+              { icon: Clock, label: 'View History', to: user ? '/history' : '/signup' },
+              { icon: Sparkles, label: 'Health Insights', to: user ? '/health-insights' : '/signup' },
+            ].map(({ icon: Icon, label, to }) => (
+              <Link
+                key={label}
+                to={to}
+                className="flex items-center gap-3 p-4 rounded-2xl border border-border bg-surface hover:bg-white hover:border-primary/20 hover:shadow-card transition-all duration-200 group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+                  <Icon className="w-5 h-5 text-primary group-hover:text-white" />
+                </div>
+                <span className="text-sm font-semibold text-ink">{label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section id="features" className="py-24">
+        <div className="page-container">
           <FadeIn className="text-center mb-16">
             <span className="section-label mb-4">Features</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-ink tracking-tight">
-              Three tools. One dashboard.
+            <h2 className="text-3xl md:text-4xl font-bold text-ink tracking-tight">
+              Why choose MedScan?
             </h2>
             <p className="mt-4 text-ink-muted max-w-xl mx-auto">
-              Everything you need to decode medical information and track your health over time.
+              Everything you need to understand and manage your health data in one elegant platform.
             </p>
           </FadeIn>
 
-          <Stagger className="grid md:grid-cols-3 gap-6">
-            {features.map(({ icon: Icon, title, description, gradient, bg, border }) => (
+          <Stagger className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map(({ icon: Icon, title, description, color }) => (
               <StaggerItem key={title}>
                 <HoverLift>
-                  <div className={`relative h-full p-7 rounded-3xl border ${border} ${bg} backdrop-blur-sm overflow-hidden group`}>
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-lg mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                      <Icon className="w-7 h-7 text-white" />
+                  <div className="h-full p-6 rounded-2xl bg-white border border-border shadow-card hover:shadow-elevated transition-shadow">
+                    <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center mb-5`}>
+                      <Icon className="w-6 h-6" />
                     </div>
-                    <h3 className="text-xl font-bold text-ink">{title}</h3>
-                    <p className="mt-3 text-sm text-ink-muted leading-relaxed">{description}</p>
-                    <ul className="mt-5 space-y-2">
-                      {['AI-powered', 'Bilingual output', 'Saved to history'].map((item) => (
-                        <li key={item} className="flex items-center gap-2 text-xs text-ink-muted">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
+                    <h3 className="text-lg font-semibold text-ink">{title}</h3>
+                    <p className="mt-2 text-sm text-ink-muted leading-relaxed">{description}</p>
                   </div>
                 </HoverLift>
               </StaggerItem>
@@ -274,19 +237,27 @@ export default function Home() {
       </section>
 
       {/* How it works */}
-      <section className="py-24 bg-white border-y border-gray-100">
-        <div className="max-w-7xl mx-auto px-6">
+      <section id="how-it-works" className="py-24 bg-white border-y border-border">
+        <div className="page-container">
           <FadeIn className="text-center mb-16">
-            <span className="section-label mb-4">How it works</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-ink">Simple as 1-2-3</h2>
+            <span className="section-label mb-4">How It Works</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-ink">Three simple steps</h2>
           </FadeIn>
-          <Stagger className="grid md:grid-cols-3 gap-8">
-            {steps.map(({ num, title, desc }) => (
+
+          <Stagger className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            {steps.map(({ num, title, desc, icon: Icon }) => (
               <StaggerItem key={num}>
-                <div className="relative text-center p-8">
-                  <span className="text-5xl font-black text-primary/10">{num}</span>
-                  <h3 className="text-lg font-bold text-ink mt-2">{title}</h3>
-                  <p className="text-sm text-ink-muted mt-2">{desc}</p>
+                <div className="text-center">
+                  <div className="relative inline-flex mb-6">
+                    <div className="w-16 h-16 rounded-2xl bg-primary-50 flex items-center justify-center">
+                      <Icon className="w-7 h-7 text-primary" />
+                    </div>
+                    <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
+                      {num}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-ink">{title}</h3>
+                  <p className="text-sm text-ink-muted mt-2 leading-relaxed">{desc}</p>
                 </div>
               </StaggerItem>
             ))}
@@ -294,43 +265,156 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-24 bg-surface">
-        <FadeIn className="max-w-4xl mx-auto px-6">
-          <div className="relative rounded-3xl overflow-hidden">
-            <div className="absolute inset-0 bg-hero-dark" />
-            <div className="absolute inset-0 bg-mesh opacity-50" />
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/30 rounded-full blur-3xl animate-pulse-glow" />
-            <div className="relative p-10 md:p-16 text-center">
-              <h2 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight">
-                Ready to decode your health data?
+      {/* Benefits */}
+      <section className="py-24">
+        <div className="page-container">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <FadeIn>
+              <span className="section-label mb-4">Benefits</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-ink tracking-tight">
+                Healthcare advantages built for you
               </h2>
-              <p className="mt-4 text-white/60 max-w-md mx-auto">
-                Join MedScan free — no credit card required. Start analysing in under a minute.
+              <p className="mt-4 text-ink-muted leading-relaxed">
+                MedScan bridges the gap between complex medical information and everyday understanding.
               </p>
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} className="inline-block mt-8">
-                <Link
-                  to={user ? '/dashboard' : '/signup'}
-                  className="inline-flex items-center gap-2 bg-white text-primary-darker px-8 py-4 rounded-2xl font-bold hover:bg-teal-50 transition-colors shadow-xl"
-                >
-                  {user ? 'Go to Dashboard' : 'Create Free Account'}
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
-              </motion.div>
-            </div>
+            </FadeIn>
+
+            <Stagger className="grid sm:grid-cols-2 gap-4">
+              {benefits.map(({ icon: Icon, title, desc }) => (
+                <StaggerItem key={title}>
+                  <div className="p-5 rounded-2xl bg-white border border-border">
+                    <Icon className="w-5 h-5 text-primary mb-3" />
+                    <h3 className="text-sm font-semibold text-ink">{title}</h3>
+                    <p className="text-xs text-ink-muted mt-1 leading-relaxed">{desc}</p>
+                  </div>
+                </StaggerItem>
+              ))}
+            </Stagger>
           </div>
-        </FadeIn>
+        </div>
       </section>
 
-      <footer className="bg-ink py-10 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <HeartPulse className="w-5 h-5 text-primary" />
-            <span className="font-bold text-white">MedScan</span>
-          </div>
-          <p className="text-sm text-white/40">&copy; {new Date().getFullYear()} MedScan. All rights reserved.</p>
+      {/* Testimonials */}
+      <section className="py-24 bg-white border-y border-border">
+        <div className="page-container">
+          <FadeIn className="text-center mb-16">
+            <span className="section-label mb-4">Testimonials</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-ink">Trusted by thousands</h2>
+          </FadeIn>
+
+          <Stagger className="grid md:grid-cols-3 gap-6">
+            {testimonials.map(({ name, role, text, rating }) => (
+              <StaggerItem key={name}>
+                <div className="h-full p-6 rounded-2xl bg-surface border border-border">
+                  <div className="flex gap-0.5 mb-4">
+                    {Array.from({ length: rating }).map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-warning text-warning" />
+                    ))}
+                  </div>
+                  <p className="text-sm text-ink-muted leading-relaxed">&ldquo;{text}&rdquo;</p>
+                  <div className="mt-5 pt-5 border-t border-border">
+                    <p className="text-sm font-semibold text-ink">{name}</p>
+                    <p className="text-xs text-ink-faint">{role}</p>
+                  </div>
+                </div>
+              </StaggerItem>
+            ))}
+          </Stagger>
         </div>
-      </footer>
+      </section>
+
+      {/* Security */}
+      <section id="security" className="py-24">
+        <div className="page-container">
+          <FadeIn>
+            <div className="rounded-3xl bg-white border border-border shadow-card p-8 md:p-12">
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <span className="section-label mb-4">
+                    <Lock className="w-3.5 h-3.5" />
+                    Security & Privacy
+                  </span>
+                  <h2 className="text-2xl md:text-3xl font-bold text-ink">Your data stays yours</h2>
+                  <p className="mt-4 text-ink-muted leading-relaxed">
+                    We use industry-standard encryption to protect your health information.
+                    Your data is never sold to third parties and you can delete it at any time.
+                  </p>
+                  <ul className="mt-6 space-y-3">
+                    {['End-to-end encryption', 'No data selling', 'Full account deletion', 'Secure cloud storage'].map((item) => (
+                      <li key={item} className="flex items-center gap-2 text-sm text-ink-muted">
+                        <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex items-center justify-center">
+                  <div className="w-32 h-32 rounded-3xl bg-primary-50 border border-primary/10 flex items-center justify-center">
+                    <Shield className="w-16 h-16 text-primary" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* Pricing placeholder */}
+      <section id="pricing" className="py-24 bg-white border-y border-border">
+        <div className="page-container text-center">
+          <FadeIn>
+            <span className="section-label mb-4">Pricing</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-ink">Start free, upgrade when ready</h2>
+            <p className="mt-4 text-ink-muted max-w-md mx-auto">
+              Core features are free forever. No credit card required to get started.
+            </p>
+            <Link to={user ? '/dashboard' : '/signup'} className="btn-primary mt-8">
+              {user ? 'Go to Dashboard' : 'Create Free Account'}
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* About */}
+      <section id="about" className="py-24">
+        <div className="page-container text-center max-w-2xl mx-auto">
+          <FadeIn>
+            <span className="section-label mb-4">About Us</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-ink">Making healthcare accessible</h2>
+            <p className="mt-4 text-ink-muted leading-relaxed">
+              MedScan was built to help patients and healthcare professionals bridge the gap
+              between medical complexity and everyday understanding. We believe everyone deserves
+              clear, actionable health information.
+            </p>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24">
+        <div className="page-container">
+          <FadeIn>
+            <div className="rounded-3xl bg-primary p-10 md:p-16 text-center text-white">
+              <h2 className="text-2xl md:text-4xl font-bold tracking-tight">
+                Ready to understand your health better?
+              </h2>
+              <p className="mt-4 text-primary-100 max-w-md mx-auto">
+                Join thousands who trust MedScan for clear, AI-powered health insights.
+              </p>
+              <Link
+                to={user ? '/dashboard' : '/signup'}
+                className="inline-flex items-center gap-2 bg-white text-primary-darker px-8 py-4 rounded-xl font-semibold hover:bg-primary-50 transition-colors mt-8 shadow-sm"
+              >
+                {user ? 'Go to Dashboard' : 'Get Started Free'}
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   )
 }

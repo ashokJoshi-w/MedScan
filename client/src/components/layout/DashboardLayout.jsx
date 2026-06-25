@@ -11,13 +11,9 @@ export default function DashboardLayout() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-surface">
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-violet-500/5 rounded-full blur-3xl" />
-        </div>
         <Sidebar />
         <Navbar />
-        <main className="md:ml-60 pt-16 md:pt-0 min-h-screen relative">
+        <main className="md:ml-64 pt-16 md:pt-0 min-h-screen">
           <div className="p-4 md:p-8 max-w-7xl mx-auto">
             <AnimatePresence mode="wait">
               <PageEnter key={location.pathname}>

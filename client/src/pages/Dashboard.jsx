@@ -1,165 +1,159 @@
 import { Link } from 'react-router-dom'
 import {
-  TrendingUp,
   FileText,
   FlaskConical,
   HeartPulse,
   ArrowRight,
   History,
+  Upload,
   Sparkles,
+  Bell,
+  Pill,
 } from 'lucide-react'
-import { motion } from 'framer-motion'
-import StatCard from '../components/ui/StatCard'
+import StatCard, { HealthScoreCard } from '../components/ui/StatCard'
 import Badge from '../components/ui/Badge'
-import { HoverLift } from '../components/ui/motion'
+import { Card } from '../components/ui/Card'
+import EmptyState from '../components/ui/EmptyState'
+import DashboardHeader from '../components/layout/DashboardHeader'
 import useDashboardStats from '../hooks/useDashboardStats'
-import { useAuth } from '../context/AuthContext'
+import { HoverLift } from '../components/ui/motion'
 
 const typeIcons = {
-  prescription: { icon: FileText, color: 'text-teal-600 bg-teal-50 ring-teal-100' },
-  lab: { icon: FlaskConical, color: 'text-blue-600 bg-blue-50 ring-blue-100' },
-  vitals: { icon: HeartPulse, color: 'text-rose-600 bg-rose-50 ring-rose-100' },
+  prescription: { icon: Pill, color: 'bg-primary-50 text-primary ring-primary/10' },
+  lab: { icon: FlaskConical, color: 'bg-blue-50 text-accent-blue ring-blue-100' },
+  vitals: { icon: HeartPulse, color: 'bg-green-50 text-success ring-green-100' },
 }
 
 const quickActions = [
-  {
-    to: '/prescription',
-    label: 'Analyse Prescription',
-    desc: 'Upload or paste Rx text',
-    icon: FileText,
-    gradient: 'from-teal-500 to-emerald-600',
-    bg: 'bg-teal-50 hover:bg-teal-100/80',
-  },
-  {
-    to: '/lab-reports',
-    label: 'Analyse Lab Report',
-    desc: 'Decode test results',
-    icon: FlaskConical,
-    gradient: 'from-blue-500 to-indigo-600',
-    bg: 'bg-blue-50 hover:bg-blue-100/80',
-  },
-  {
-    to: '/vitals',
-    label: 'Log Vitals',
-    desc: 'Track BP, HR & weight',
-    icon: HeartPulse,
-    gradient: 'from-rose-500 to-pink-600',
-    bg: 'bg-rose-50 hover:bg-rose-100/80',
-  },
+  { to: '/upload-report', label: 'Upload Report', desc: 'Analyse lab results', icon: Upload, color: 'bg-blue-50 text-accent-blue' },
+  { to: '/prescription', label: 'Add Prescription', desc: 'Decode medicines', icon: Pill, color: 'bg-primary-50 text-primary' },
+  { to: '/vitals', label: 'Log Vitals', desc: 'Track health metrics', icon: HeartPulse, color: 'bg-green-50 text-success' },
+  { to: '/health-insights', label: 'View Insights', desc: 'AI recommendations', icon: Sparkles, color: 'bg-amber-50 text-warning' },
 ]
 
+function computeHealthScore(stats) {
+  if (stats.total === 0) return 85
+  const abnormalCount = stats.recentActivity.filter((a) => a.status === 'abnormal' || a.status === 'critical').length
+  const ratio = abnormalCount / Math.max(stats.recentActivity.length, 1)
+  return Math.max(40, Math.min(98, Math.round(92 - ratio * 30)))
+}
+
 export default function Dashboard() {
-  const { user } = useAuth()
   const stats = useDashboardStats()
-  const name = user?.name?.split(' ')[0] || user?.email?.split('@')[0] || 'there'
+  const healthScore = computeHealthScore(stats)
 
   return (
-    <div className="space-y-8">
-      <div className="relative overflow-hidden rounded-3xl bg-hero-dark p-6 md:p-8 text-white shadow-glow-lg">
-        <div className="absolute inset-0 bg-mesh opacity-40 pointer-events-none" />
-        <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/30 rounded-full blur-3xl animate-pulse-glow pointer-events-none" />
-        <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <p className="text-teal-200/80 text-sm font-medium mb-1">Welcome back, {name}</p>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Your Health Dashboard</h1>
-            <p className="text-teal-100/70 text-sm mt-2 max-w-md">
-              {stats.total === 0
-                ? 'Start by analysing a prescription, lab report, or logging vitals.'
-                : `You have ${stats.total} recorded ${stats.total === 1 ? 'analysis' : 'analyses'} across your account.`}
-            </p>
-          </div>
-          <Link to="/prescription" className="btn-primary shrink-0 self-start md:self-center">
-            <Sparkles className="w-4 h-4" />
-            New Analysis
-          </Link>
-        </div>
+    <div>
+      <DashboardHeader
+        title="Dashboard"
+        subtitle={stats.total === 0 ? 'Get started by uploading your first report' : `${stats.total} records in your health profile`}
+      />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <StatCard title="Reports" value={stats.labReports} icon={FlaskConical} color="blue" trend={stats.trends.labReports} trendLabel="vs last week" index={0} />
+        <StatCard title="Prescriptions" value={stats.prescriptions} icon={Pill} color="teal" trend={stats.trends.prescriptions} trendLabel="vs last week" index={1} />
+        <StatCard title="Vitals Logged" value={stats.vitalsLogged} icon={HeartPulse} color="green" trend={stats.trends.vitals} trendLabel="vs last week" index={2} />
+        <StatCard title="Total Records" value={stats.total} icon={FileText} color="teal" trend={stats.trends.total} trendLabel="vs last week" index={3} />
+        <HealthScoreCard score={healthScore} index={4} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Analyses" value={stats.total} icon={TrendingUp} color="teal" trend={stats.trends.total} trendLabel="vs last week" index={0} />
-        <StatCard title="Prescriptions" value={stats.prescriptions} icon={FileText} color="blue" trend={stats.trends.prescriptions} trendLabel="vs last week" index={1} />
-        <StatCard title="Lab Reports" value={stats.labReports} icon={FlaskConical} color="purple" trend={stats.trends.labReports} trendLabel="vs last week" index={2} />
-        <StatCard title="Vitals Logged" value={stats.vitalsLogged} icon={HeartPulse} color="rose" trend={stats.trends.vitals} trendLabel="vs last week" index={3} />
-      </div>
-
-      <div className="grid lg:grid-cols-5 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.45 }}
-          className="lg:col-span-3 bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden"
-        >
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-ink">Recent Activity</h2>
+      <div className="grid lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2" padding={false}>
+          <div className="px-6 py-5 border-b border-border flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-ink">Recent Reports</h2>
             {stats.total > 0 && (
-              <Link to="/history" className="text-xs font-semibold text-primary hover:text-primary-dark transition-colors">
+              <Link to="/reports" className="text-sm font-medium text-primary hover:text-primary-dark transition-colors">
                 View all
               </Link>
             )}
           </div>
 
           {stats.recentActivity.length === 0 ? (
-            <div className="px-6 py-14 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
-                <History className="w-7 h-7 text-gray-300" />
-              </div>
-              <p className="text-sm font-semibold text-ink-muted">No activity yet</p>
-              <p className="text-xs text-ink-faint mt-1">Your analyses will appear here automatically</p>
-            </div>
+            <EmptyState
+              icon={History}
+              title="No reports yet"
+              description="Upload a lab report or prescription to see your recent activity here."
+              actionLabel="Upload Report"
+              actionTo="/upload-report"
+            />
           ) : (
-            <ul className="divide-y divide-gray-50">
-              {stats.recentActivity.map((item, i) => {
+            <ul className="divide-y divide-border">
+              {stats.recentActivity.map((item) => {
                 const { icon: Icon, color } = typeIcons[item.type] || typeIcons.prescription
                 return (
-                  <motion.li
-                    key={item.id}
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.35 + i * 0.06 }}
-                    className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/80 transition-colors"
-                  >
+                  <li key={item.id} className="flex items-center gap-4 px-6 py-4 hover:bg-surface/80 transition-colors">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ring-1 ${color}`}>
                       <Icon className="w-5 h-5" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-ink truncate">{item.title}</p>
-                      <p className="text-xs text-ink-faint">{item.date}</p>
+                      <p className="text-sm font-medium text-ink truncate">{item.title}</p>
+                      <p className="text-xs text-ink-faint mt-0.5">{item.date}</p>
                     </div>
                     <Badge status={item.status} />
-                  </motion.li>
+                  </li>
                 )
               })}
             </ul>
           )}
-        </motion.div>
+        </Card>
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35, duration: 0.45 }}
-          className="lg:col-span-2"
-        >
-          <h2 className="text-lg font-bold text-ink mb-4">Quick Actions</h2>
-          <div className="space-y-3">
-            {quickActions.map(({ to, label, desc, icon: Icon, gradient, bg }, i) => (
-              <HoverLift key={to}>
-                <Link
-                  to={to}
-                  className={`flex items-center gap-4 p-4 rounded-2xl border border-gray-100 ${bg} transition-all group`}
-                >
-                  <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-md shrink-0 group-hover:scale-105 transition-transform`}>
-                    <Icon className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-ink">{label}</p>
-                    <p className="text-xs text-ink-muted">{desc}</p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-ink-faint group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
-                </Link>
-              </HoverLift>
-            ))}
-          </div>
-        </motion.div>
+        <div className="space-y-6">
+          <Card padding={false}>
+            <div className="px-6 py-5 border-b border-border flex items-center gap-2">
+              <Bell className="w-4 h-4 text-ink-muted" />
+              <h2 className="text-lg font-semibold text-ink">Reminders</h2>
+            </div>
+            <div className="p-6">
+              <div className="space-y-3">
+                <div className="p-4 rounded-xl bg-surface border border-border">
+                  <p className="text-sm font-medium text-ink">Log vitals weekly</p>
+                  <p className="text-xs text-ink-muted mt-1">Track BP and heart rate regularly</p>
+                </div>
+                <div className="p-4 rounded-xl bg-surface border border-border">
+                  <p className="text-sm font-medium text-ink">Review health insights</p>
+                  <p className="text-xs text-ink-muted mt-1">Check AI recommendations monthly</p>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <Card padding={false}>
+            <div className="px-6 py-5 border-b border-border flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <h2 className="text-lg font-semibold text-ink">Health Insights</h2>
+            </div>
+            <div className="p-6">
+              {stats.total === 0 ? (
+                <p className="text-sm text-ink-muted">Upload data to receive personalised AI insights.</p>
+              ) : (
+                <p className="text-sm text-ink-muted leading-relaxed">
+                  Based on your {stats.total} records, your health profile is {healthScore >= 80 ? 'looking good' : 'needs attention'}. 
+                  {' '}<Link to="/health-insights" className="text-primary font-medium hover:underline">View details</Link>
+                </p>
+              )}
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold text-ink mb-4">Quick Actions</h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {quickActions.map(({ to, label, desc, icon: Icon, color }) => (
+            <HoverLift key={to}>
+              <Link to={to} className="flex items-center gap-4 p-5 rounded-2xl bg-white border border-border shadow-card hover:shadow-elevated hover:border-primary/20 transition-all group">
+                <div className={`w-11 h-11 rounded-xl ${color} flex items-center justify-center shrink-0`}>
+                  <Icon className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-ink">{label}</p>
+                  <p className="text-xs text-ink-muted">{desc}</p>
+                </div>
+                <ArrowRight className="w-4 h-4 text-ink-faint group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+              </Link>
+            </HoverLift>
+          ))}
+        </div>
       </div>
     </div>
   )

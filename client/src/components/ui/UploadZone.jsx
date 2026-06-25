@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { UploadCloud, X, FileText } from 'lucide-react'
+import { UploadCloud, X, FileText, Image } from 'lucide-react'
 
 const formatFileSize = (bytes) => {
   if (bytes < 1024) return `${bytes} B`
@@ -12,7 +12,9 @@ export default function UploadZone({
   onFile,
   file: controlledFile,
   accept = 'image/*,.pdf',
-  label = 'Drop file here or click to upload',
+  label = 'Drop your file here or click to browse',
+  sublabel = 'Supports PDF, JPG, and PNG up to 10MB',
+  large = false,
 }) {
   const onSelect = onFileSelect || onFile
   const isControlled = controlledFile !== undefined
@@ -43,6 +45,8 @@ export default function UploadZone({
 
   const openPicker = () => inputRef.current?.click()
 
+  const padding = large ? 'p-12 md:p-16' : file ? 'p-5' : 'p-8'
+
   return (
     <div
       onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
@@ -52,12 +56,12 @@ export default function UploadZone({
         setDragging(false)
         handleFile(e.dataTransfer.files[0])
       }}
-      className={`relative border-2 border-dashed rounded-xl transition-all duration-200 ${
-        file ? 'p-4 border-gray-200 bg-gray-50/50' : 'p-8 text-center cursor-pointer'
-      } ${
+      className={`relative border-2 border-dashed rounded-2xl transition-all duration-200 ${padding} ${
         dragging
-          ? 'border-primary bg-primary-light'
-          : 'border-gray-200 hover:border-primary/40'
+          ? 'border-primary bg-primary-50/50'
+          : file
+            ? 'border-border bg-surface'
+            : 'border-border hover:border-primary/40 hover:bg-primary-50/30 cursor-pointer'
       }`}
     >
       <input
@@ -69,21 +73,21 @@ export default function UploadZone({
       />
 
       {file ? (
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary-light flex items-center justify-center shrink-0">
-            <FileText className="w-5 h-5 text-primary-darker" />
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center shrink-0">
+            <FileText className="w-6 h-6 text-primary" />
           </div>
           <div className="flex-1 min-w-0 text-left">
-            <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
-            <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+            <p className="text-sm font-semibold text-ink truncate">{file.name}</p>
+            <p className="text-xs text-ink-muted mt-0.5">{formatFileSize(file.size)}</p>
           </div>
           <button
             type="button"
             onClick={handleRemove}
-            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer shrink-0"
+            className="p-2 text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors cursor-pointer shrink-0"
             aria-label="Remove file"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
       ) : (
@@ -92,9 +96,19 @@ export default function UploadZone({
           onClick={openPicker}
           className="w-full flex flex-col items-center cursor-pointer"
         >
-          <UploadCloud className="mb-3 h-10 w-10 text-gray-400" />
-          <p className="text-sm font-medium text-gray-700">{label}</p>
-          <p className="mt-1 text-xs text-gray-400">JPG, PNG, PDF supported</p>
+          <div className={`${large ? 'w-16 h-16' : 'w-14 h-14'} rounded-2xl bg-primary-50 flex items-center justify-center mb-4`}>
+            <UploadCloud className={`${large ? 'w-8 h-8' : 'w-7 h-7'} text-primary`} />
+          </div>
+          <p className={`${large ? 'text-base' : 'text-sm'} font-semibold text-ink`}>{label}</p>
+          <p className="mt-2 text-sm text-ink-muted">{sublabel}</p>
+          <div className="flex items-center gap-4 mt-6">
+            <span className="inline-flex items-center gap-1.5 text-xs text-ink-faint bg-white px-3 py-1.5 rounded-lg border border-border">
+              <FileText className="w-3.5 h-3.5" /> PDF
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-xs text-ink-faint bg-white px-3 py-1.5 rounded-lg border border-border">
+              <Image className="w-3.5 h-3.5" /> JPG / PNG
+            </span>
+          </div>
         </button>
       )}
     </div>

@@ -1,17 +1,93 @@
 import { useState } from 'react'
-import { FileSearch } from 'lucide-react'
+import { ChevronDown, ChevronUp, Pill, Clock, User, Bell } from 'lucide-react'
+import PageHeader from '../components/ui/PageHeader'
 import UploadZone from '../components/ui/UploadZone'
 import AnalysisActions from '../components/ui/AnalysisActions'
+import { Card } from '../components/ui/Card'
+import EmptyState from '../components/ui/EmptyState'
+import { AnalysisLoading } from '../components/ui/LoadingState'
+import { Textarea } from '../components/ui/Input'
 import useAnalyze from '../hooks/useAnalyze'
 import useHistory from '../hooks/useHistory'
+
+function PrescriptionCard({ medicine, index, defaultOpen = false }) {
+  const [expanded, setExpanded] = useState(defaultOpen)
+
+  return (
+    <div className="rounded-2xl border border-border bg-white overflow-hidden hover:shadow-card transition-shadow">
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center gap-4 p-5 text-left hover:bg-surface/50 transition-colors"
+      >
+        <div className="w-11 h-11 rounded-xl bg-primary-50 flex items-center justify-center shrink-0">
+          <Pill className="w-5 h-5 text-primary" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-base font-semibold text-ink">{medicine.name || `Medicine ${index + 1}`}</p>
+          <p className="text-sm text-ink-muted mt-0.5">{medicine.dosage || 'Dosage not specified'}</p>
+        </div>
+        <div className="hidden sm:flex items-center gap-4 text-sm text-ink-muted shrink-0">
+          <span className="flex items-center gap-1.5">
+            <Clock className="w-4 h-4" />
+            {medicine.instructions_en || 'As directed'}
+          </span>
+        </div>
+        {expanded ? (
+          <ChevronUp className="w-5 h-5 text-ink-faint shrink-0" />
+        ) : (
+          <ChevronDown className="w-5 h-5 text-ink-faint shrink-0" />
+        )}
+      </button>
+
+      {expanded && (
+        <div className="px-5 pb-5 pt-0 border-t border-border">
+          <div className="grid sm:grid-cols-2 gap-4 pt-4">
+            <div>
+              <p className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1">Purpose</p>
+              <p className="text-sm text-ink">{medicine.purpose_en || '—'}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1">Duration</p>
+              <p className="text-sm text-ink">{medicine.duration || '—'}</p>
+            </div>
+            <div className="sm:col-span-2">
+              <p className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1">Instructions</p>
+              <p className="text-sm text-ink-muted leading-relaxed">{medicine.instructions_en || 'Follow doctor\'s advice'}</p>
+            </div>
+            {medicine.side_effects_en?.length > 0 && (
+              <div className="sm:col-span-2">
+                <p className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1">Side Effects</p>
+                <ul className="text-sm text-ink-muted space-y-1">
+                  {medicine.side_effects_en.map((effect, i) => (
+                    <li key={i}>• {effect}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-4 p-3 rounded-xl bg-amber-50 border border-amber-100 flex items-center gap-3">
+            <Bell className="w-4 h-4 text-warning shrink-0" />
+            <p className="text-xs text-ink-muted">
+              Reminder: Take {medicine.instructions_en || 'as prescribed'} — set a daily alarm to stay on schedule.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function Prescription() {
   const [file, setFile] = useState(null)
   const [text, setText] = useState('')
   const { analyze, loading, error, result, reset } = useAnalyze()
-  const { addToHistory } = useHistory()
+  const { history, addToHistory } = useHistory()
 
   const canAnalyze = Boolean(file || text.trim())
+  const medicines = Array.isArray(result) ? result : []
+  const savedPrescriptions = history.filter((h) => h.type === 'prescription').slice(0, 3)
 
   const handleAnalyze = async () => {
     if (!canAnalyze) return
@@ -33,23 +109,21 @@ export default function Prescription() {
     reset()
   }
 
-  const medicines = Array.isArray(result) ? result : []
-
   const buildSummary = () => {
     if (!medicines.length) return ''
     const names = medicines.map((m) => m.name).filter(Boolean).join(', ')
-    return `Analysis identified ${medicines.length} medication${medicines.length !== 1 ? 's' : ''}: ${names}. Review the dosage and instructions below and consult your doctor if you have questions.`
+    return `Analysis identified ${medicines.length} medication${medicines.length !== 1 ? 's' : ''}: ${names}. Review dosage and instructions below.`
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Prescription Analysis</h1>
-        <p className="text-sm text-gray-500 mt-1">Upload or paste a prescription to extract medicine details.</p>
-      </div>
+    <div>
+      <PageHeader
+        title="Prescriptions"
+        description="Upload or paste a prescription to decode medicines, dosages, and schedules."
+      />
 
-      <div className="grid lg:grid-cols-2 gap-6 items-start">
-        <div className="card-interactive p-6">
+      <div className="grid lg:grid-cols-2 gap-6 mb-8">
+        <Card>
           <UploadZone
             file={file}
             onFileSelect={setFile}
@@ -58,20 +132,17 @@ export default function Prescription() {
           />
 
           <div className="mt-4">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-              Or paste prescription text
-            </label>
-            <textarea
+            <Textarea
+              label="Or paste prescription text"
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="e.g. Tab Amoxicillin 500mg TDS x 5 days, Cap Omeprazole 20mg OD..."
               rows={4}
-              className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-gray-50/80 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none transition"
             />
           </div>
 
           {error && (
-            <div className="mt-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
+            <div className="mt-4 bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-sm text-red-700" role="alert">
               {error}
             </div>
           )}
@@ -82,54 +153,56 @@ export default function Prescription() {
             loading={loading}
             canAnalyze={canAnalyze}
           />
-        </div>
+        </Card>
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-6 min-h-[320px]">
-          {medicines.length > 0 ? (
-            <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Results — {medicines.length} medicine{medicines.length !== 1 ? 's' : ''} found
-              </h2>
-
-              <div className="overflow-x-auto rounded-xl border border-gray-100">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Name</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Dosage</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Frequency</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Duration</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {medicines.map((med, i) => (
-                      <tr key={i} className="hover:bg-gray-50/50">
-                        <td className="px-4 py-3 font-medium text-gray-900">{med.name}</td>
-                        <td className="px-4 py-3 text-gray-600">{med.dosage || '—'}</td>
-                        <td className="px-4 py-3 text-gray-600">{med.instructions_en || 'As directed'}</td>
-                        <td className="px-4 py-3 text-gray-600">{med.duration || '—'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+        <Card className="min-h-[320px]">
+          {loading ? (
+            <AnalysisLoading message="Analysing prescription..." />
+          ) : medicines.length > 0 ? (
+            <div className="space-y-4">
+              <div className="p-4 rounded-xl bg-primary-50 border border-primary/10">
+                <p className="text-xs font-semibold text-primary-darker mb-1">AI Summary</p>
+                <p className="text-sm text-ink-muted leading-relaxed">{buildSummary()}</p>
               </div>
-
-              <div className="bg-gradient-to-br from-primary-light to-teal-50 rounded-xl p-5 border border-primary/10">
-                <h3 className="text-xs font-semibold text-primary-darker uppercase tracking-wide mb-2">AI Summary</h3>
-                <p className="text-sm text-gray-700 leading-relaxed">{buildSummary()}</p>
-              </div>
+              <p className="text-sm font-semibold text-ink">{medicines.length} medicine{medicines.length !== 1 ? 's' : ''} found</p>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-full min-h-[280px] text-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center mb-4">
-                <FileSearch className="w-8 h-8 text-gray-300" />
-              </div>
-              <p className="text-sm font-semibold text-gray-600">No results yet</p>
-              <p className="text-xs text-gray-400 mt-1 max-w-xs">Upload a prescription or paste text, then click Analyse</p>
-            </div>
+            <EmptyState
+              icon={Pill}
+              title="No prescription analysed"
+              description="Upload or paste a prescription, then click Analyse to see medicine details."
+            />
           )}
-        </div>
+        </Card>
       </div>
+
+      {medicines.length > 0 && (
+        <div className="space-y-4 mb-8">
+          <h2 className="text-lg font-semibold text-ink">Medication Details</h2>
+          {medicines.map((med, i) => (
+            <PrescriptionCard key={i} medicine={med} index={i} defaultOpen={i === 0} />
+          ))}
+        </div>
+      )}
+
+      {savedPrescriptions.length > 0 && medicines.length === 0 && (
+        <div>
+          <h2 className="text-lg font-semibold text-ink mb-4">Recent Prescriptions</h2>
+          <div className="space-y-3">
+            {savedPrescriptions.map((item) => (
+              <div key={item.id} className="flex items-center gap-4 p-5 rounded-2xl bg-white border border-border">
+                <div className="w-11 h-11 rounded-xl bg-primary-50 flex items-center justify-center">
+                  <User className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-ink truncate">{item.title}</p>
+                  <p className="text-xs text-ink-muted mt-0.5">{item.summary} · {item.date}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
