@@ -7,7 +7,7 @@ export default function AnalysisActions({ onAnalyze, onClear, loading, canAnalyz
         type="button"
         onClick={onAnalyze}
         disabled={loading || !canAnalyze}
-        className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-sm transition-all cursor-pointer"
+        className="btn-primary text-sm py-2.5 px-5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none cursor-pointer"
       >
         {loading ? (
           <Loader2 className="w-4 h-4 animate-spin" />
@@ -19,7 +19,7 @@ export default function AnalysisActions({ onAnalyze, onClear, loading, canAnalyz
       <button
         type="button"
         onClick={onClear}
-        className="px-5 py-2.5 text-sm font-medium text-ink-muted hover:text-ink border border-border rounded-xl hover:bg-surface transition-colors cursor-pointer"
+        className="btn-secondary text-sm py-2.5 px-5 cursor-pointer"
       >
         Clear
       </button>

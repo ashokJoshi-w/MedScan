@@ -49,7 +49,7 @@ export default function Navbar() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="p-2 text-ink-muted hover:text-ink hover:bg-white rounded-xl transition-colors cursor-pointer"
+          className="p-2 text-ink-muted hover:text-ink hover:bg-white/80 rounded-xl transition-colors cursor-pointer"
           aria-label="Open menu"
         >
           <Menu className="w-6 h-6" />
@@ -65,7 +65,7 @@ export default function Navbar() {
       )}
 
       <div
-        className={`md:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white z-50 shadow-soft transform transition-transform duration-300 ${
+        className={`md:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-section z-50 shadow-soft transform transition-transform duration-300 ${
           open ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -74,14 +74,14 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="p-2 text-ink-muted hover:bg-surface rounded-xl transition-colors cursor-pointer"
+            className="p-2 text-ink-muted hover:bg-white rounded-xl transition-colors cursor-pointer"
             aria-label="Close menu"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <nav className="px-3 py-4 space-y-1 overflow-y-auto max-h-[calc(100vh-140px)]">
+        <nav className="px-3 py-4 space-y-0.5 overflow-y-auto max-h-[calc(100vh-140px)]">
           {navItems.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
@@ -90,8 +90,8 @@ export default function Navbar() {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-primary-50 text-primary-darker'
-                    : 'text-ink-muted hover:bg-surface hover:text-ink'
+                    ? 'sidebar-nav-active'
+                    : 'text-ink-muted hover:bg-white hover:text-ink'
                 }`
               }
             >

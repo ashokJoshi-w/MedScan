@@ -11,10 +11,13 @@ export default function Logo({ to = '/', size = 'md', className = '' }) {
 
   return (
     <Link to={to} className={`flex items-center gap-2.5 group ${className}`}>
-      <div className={`${s.box} rounded-xl bg-primary flex items-center justify-center shadow-sm group-hover:shadow-card-hover transition-shadow`}>
+      <div
+        className={`${s.box} rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-glow transition-shadow duration-300`}
+        style={{ background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)' }}
+      >
         <HeartPulse className={`${s.icon} text-white`} />
       </div>
-      <span className={`${s.text} font-bold text-ink`}>MedScan</span>
+      <span className={`${s.text} font-bold text-ink tracking-tight`}>MedScan</span>
     </Link>
   )
 }

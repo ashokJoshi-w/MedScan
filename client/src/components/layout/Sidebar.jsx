@@ -1,7 +1,6 @@
 import { NavLink, useNavigate, Link } from 'react-router-dom'
 import {
   LayoutDashboard,
-  FileText,
   FlaskConical,
   HeartPulse,
   Clock,
@@ -46,10 +45,10 @@ export default function Sidebar() {
     <NavLink to={to}>
       {({ isActive }) => (
         <div
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
             isActive
-              ? 'bg-primary-50 text-primary-darker shadow-sm'
-              : 'text-ink-muted hover:bg-white hover:text-ink'
+              ? 'sidebar-nav-active'
+              : 'text-ink-muted hover:bg-white/70 hover:text-ink font-medium'
           }`}
         >
           <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-primary' : ''}`} />
@@ -60,36 +59,34 @@ export default function Sidebar() {
   )
 
   return (
-    <aside className="hidden md:flex fixed left-0 top-0 h-screen w-64 flex-col bg-white border-r border-border z-30">
-      <div className="px-5 py-6 border-b border-border">
+    <aside className="hidden md:flex fixed left-0 top-0 h-screen w-64 flex-col bg-section/80 backdrop-blur-sm border-r border-border z-30">
+      <div className="px-5 py-6">
         <Logo to="/dashboard" />
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
         {navItems.map((item) => (
           <NavItem key={item.to} {...item} />
         ))}
 
-        <div className="pt-4 mt-4 border-t border-border space-y-1">
+        <div className="pt-4 mt-4 border-t border-border/80 space-y-0.5">
           {bottomItems.map((item) => (
             <NavItem key={item.to} {...item} />
           ))}
         </div>
       </nav>
 
-      <div className="px-4 py-4 border-t border-border">
+      <div className="px-4 py-4 border-t border-border/80">
         <Link
           to="/profile"
-          className="flex items-center gap-3 mb-3 p-3 rounded-xl bg-surface border border-border hover:border-primary/20 transition-colors"
+          className="flex items-center gap-3 mb-3 p-3 rounded-xl bg-white border border-border hover:border-primary/20 hover:shadow-card transition-all duration-200"
         >
-          <div className="w-9 h-9 rounded-lg bg-primary-50 text-primary-darker flex items-center justify-center text-sm font-bold">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary-50 to-accent-blue-soft text-primary-darker flex items-center justify-center text-sm font-bold">
             {initial}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-ink truncate">{displayName}</p>
-            {user?.email && (
-              <p className="text-xs text-ink-faint truncate">{user.email}</p>
-            )}
+            <p className="text-xs text-ink-faint truncate">Free plan</p>
           </div>
         </Link>
         <button

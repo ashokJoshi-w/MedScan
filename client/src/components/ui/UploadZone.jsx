@@ -58,10 +58,10 @@ export default function UploadZone({
       }}
       className={`relative border-2 border-dashed rounded-2xl transition-all duration-200 ${padding} ${
         dragging
-          ? 'border-primary bg-primary-50/50'
+          ? 'border-accent-blue bg-accent-blue-soft/50'
           : file
-            ? 'border-border bg-surface'
-            : 'border-border hover:border-primary/40 hover:bg-primary-50/30 cursor-pointer'
+            ? 'border-border bg-section'
+            : 'border-border hover:border-primary/40 hover:bg-primary-50/20 cursor-pointer'
       }`}
     >
       <input
@@ -74,8 +74,8 @@ export default function UploadZone({
 
       {file ? (
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center shrink-0">
-            <FileText className="w-6 h-6 text-primary" />
+          <div className="icon-badge-green shrink-0">
+            <FileText className="w-6 h-6" />
           </div>
           <div className="flex-1 min-w-0 text-left">
             <p className="text-sm font-semibold text-ink truncate">{file.name}</p>
@@ -96,8 +96,8 @@ export default function UploadZone({
           onClick={openPicker}
           className="w-full flex flex-col items-center cursor-pointer"
         >
-          <div className={`${large ? 'w-16 h-16' : 'w-14 h-14'} rounded-2xl bg-primary-50 flex items-center justify-center mb-4`}>
-            <UploadCloud className={`${large ? 'w-8 h-8' : 'w-7 h-7'} text-primary`} />
+          <div className={`${large ? 'w-16 h-16' : 'w-14 h-14'} icon-badge-blue mb-4`}>
+            <UploadCloud className={`${large ? 'w-8 h-8' : 'w-7 h-7'}`} />
           </div>
           <p className={`${large ? 'text-base' : 'text-sm'} font-semibold text-ink`}>{label}</p>
           <p className="mt-2 text-sm text-ink-muted">{sublabel}</p>

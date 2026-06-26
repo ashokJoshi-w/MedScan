@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom'
 import { HeartPulse } from 'lucide-react'
+import Logo from '../ui/Logo'
 
 const footerLinks = {
   Product: [
     { label: 'Features', href: '/#features' },
     { label: 'How It Works', href: '/#how-it-works' },
     { label: 'Pricing', href: '/#pricing' },
+    { label: 'FAQ', href: '/#faq' },
   ],
   Company: [
     { label: 'About', href: '/#about' },
@@ -20,17 +22,12 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="bg-white border-t border-border">
-      <div className="page-container py-16">
+    <footer className="bg-section border-t border-border section-tint-blue">
+      <div className="page-container py-16 lg:py-20">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
-                <HeartPulse className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-lg font-bold text-ink">MedScan</span>
-            </div>
-            <p className="text-sm text-ink-muted leading-relaxed max-w-xs">
+            <Logo to="/" size="sm" className="mb-4" />
+            <p className="text-sm text-ink-muted leading-relaxed max-w-xs text-pretty">
               AI-powered healthcare insights that help you understand your medical data with clarity and confidence.
             </p>
           </div>
@@ -41,7 +38,7 @@ export default function Footer() {
               <ul className="space-y-3">
                 {links.map(({ label, href }) => (
                   <li key={label}>
-                    <Link to={href} className="text-sm text-ink-muted hover:text-primary transition-colors">
+                    <Link to={href} className="text-sm text-ink-muted hover:text-primary transition-colors duration-200">
                       {label}
                     </Link>
                   </li>
@@ -56,8 +53,8 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} MedScan. All rights reserved.
           </p>
           <div className="flex items-center gap-6 text-sm text-ink-muted">
-            <Link to="#" className="hover:text-ink transition-colors">Privacy Policy</Link>
-            <Link to="#" className="hover:text-ink transition-colors">Terms of Service</Link>
+            <Link to="#" className="hover:text-ink transition-colors duration-200">Privacy Policy</Link>
+            <Link to="#" className="hover:text-ink transition-colors duration-200">Terms of Service</Link>
           </div>
         </div>
       </div>

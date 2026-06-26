@@ -10,7 +10,7 @@ export default function DashboardLayout() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-surface">
+      <div className="min-h-screen app-bg">
         <Sidebar />
         <Navbar />
         <main className="md:ml-64 pt-16 md:pt-0 min-h-screen">

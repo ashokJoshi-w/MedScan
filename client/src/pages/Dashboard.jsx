@@ -62,7 +62,7 @@ export default function Dashboard() {
           <div className="px-6 py-5 border-b border-border flex items-center justify-between">
             <h2 className="text-lg font-semibold text-ink">Recent Reports</h2>
             {stats.total > 0 && (
-              <Link to="/reports" className="text-sm font-medium text-primary hover:text-primary-dark transition-colors">
+              <Link to="/reports" className="text-sm font-medium hover:text-primary-dark transition-colors">
                 View all
               </Link>
             )}

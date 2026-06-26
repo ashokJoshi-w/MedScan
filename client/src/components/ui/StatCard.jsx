@@ -103,7 +103,7 @@ export function HealthScoreCard({ score, index = 0 }) {
       <p className="text-sm text-ink-muted mb-4 self-start">Health Score</p>
       <div className="relative w-28 h-28">
         <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="42" fill="none" stroke="#E6EEF0" strokeWidth="8" />
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#E5E7EB" strokeWidth="8" />
           <circle
             cx="50"
             cy="50"
