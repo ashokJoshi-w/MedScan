@@ -19,9 +19,9 @@ import useDashboardStats from '../hooks/useDashboardStats'
 import { HoverLift } from '../components/ui/motion'
 
 const typeIcons = {
-  prescription: { icon: Pill, color: 'bg-primary-50 text-primary ring-primary/10' },
+  prescription: { icon: Pill, color: 'bg-red-200 text-primary ring-primary/10' },
   lab: { icon: FlaskConical, color: 'bg-blue-50 text-accent-blue ring-blue-100' },
-  vitals: { icon: HeartPulse, color: 'bg-green-50 text-success ring-green-100' },
+  vitals: { icon: HeartPulse, color: 'bg-purple-50 text-success ring-green-100' },
 }
 
 const quickActions = [

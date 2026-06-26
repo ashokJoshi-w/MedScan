@@ -28,8 +28,8 @@ const sidebarItems = [
 const stats = [
   { label: 'Reports', value: '12', trend: '+25%', icon: FlaskConical, color: 'icon-badge-blue' },
   { label: 'Prescriptions', value: '8', trend: '+12%', icon: Pill, color: 'icon-badge-green' },
-  { label: 'Vitals Logged', value: '24', trend: '+18%', icon: HeartPulse, color: 'icon-badge-green' },
-  { label: 'Total Records', value: '44', trend: '+15%', icon: FileText, color: 'icon-badge-green' },
+  { label: 'Vitals Logged', value: '24', trend: '+18%', icon: HeartPulse, color: 'icon-badge-purple' },
+  { label: 'Total Records', value: '44', trend: '+15%', icon: FileText, color: 'icon-badge-blue' },
 ]
 
 const activities = [
@@ -106,7 +106,7 @@ export default function DashboardPreview() {
               {/* Top bar */}
               <div className="flex items-center justify-between gap-3 mb-5">
                 <div>
-                  <p className="text-xs text-ink-muted">Good afternoon</p>
+                  <p className="text-xs text-ink-faint">Good afternoon</p>
                   <p className="text-sm font-bold text-ink">Dashboard</p>
                 </div>
                 <div className="flex items-center gap-2">

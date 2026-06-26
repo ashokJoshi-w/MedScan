@@ -14,7 +14,7 @@ export default function DashboardLayout() {
         <Sidebar />
         <Navbar />
         <main className="md:ml-64 pt-16 md:pt-0 min-h-screen">
-          <div className="p-4 md:p-8 max-w-7xl mx-auto">
+          <div className="p-4 md:p-8 max-w-7xl mx-auto bg bg-blue-50">
             <AnimatePresence mode="wait">
               <PageEnter key={location.pathname}>
                 <Outlet />

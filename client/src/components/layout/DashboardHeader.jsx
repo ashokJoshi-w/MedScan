@@ -11,7 +11,7 @@ export default function DashboardHeader({ title, subtitle }) {
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
 
   return (
-    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
+    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8  bg-blur rounded-2xl px-5 py-4 lg:px-6 lg:py-5 shadow-card">
       <div>
         <p className="text-sm text-ink-muted mb-1">
           {greeting}, {firstName}
@@ -26,7 +26,7 @@ export default function DashboardHeader({ title, subtitle }) {
           <input
             type="search"
             placeholder="Search reports, vitals..."
-            className="search-bar w-full sm:w-56 lg:w-72"
+            className="search-bar w-full sm:w-56 lg:w-72 shadow-2xl border-black "
             aria-label="Search"
           />
         </div>
