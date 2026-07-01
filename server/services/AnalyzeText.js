@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// ─── Client ───────────────────────────────────────────────────────────────────
+
 
 const getGemini = () => {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -12,7 +12,6 @@ const getGemini = () => {
   return new GoogleGenerativeAI(apiKey);
 };
 
-// ─── Prompts ──────────────────────────────────────────────────────────────────
 
 const prompts = {
   prescription: (text) => `You are MedScan, a bilingual medical AI assistant fluent in English and Hindi.
@@ -114,10 +113,10 @@ Document text:
 ${text}`,
 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 
 const parseJsonResponse = (raw) => {
-  // Strip markdown code fences if Gemini wraps the response
+
   const clean = raw
     .replace(/^```(?:json)?\s*/i, "")
     .replace(/\s*```$/i, "")
@@ -126,7 +125,7 @@ const parseJsonResponse = (raw) => {
   try {
     return JSON.parse(clean);
   } catch {
-    // Last resort: try to extract JSON from somewhere inside the response
+    
     const jsonMatch = clean.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
     if (jsonMatch) {
       try {
@@ -155,7 +154,6 @@ const friendlyError = (err) => {
   return err;
 };
 
-// ─── Main Export ──────────────────────────────────────────────────────────────
 
 /**
  * analyzeText - Takes extracted text and analyzes it by mode
@@ -174,7 +172,7 @@ export const analyzeText = async (text, mode) => {
     const model = gemini.getGenerativeModel({
       model: "gemini-2.5-flash",
       generationConfig: {
-        temperature: 0.2,      // Low temp = more consistent structured output
+        temperature: 0.2,      
         topP: 0.8,
         maxOutputTokens: 2048,
       },
@@ -194,11 +192,10 @@ export const analyzeText = async (text, mode) => {
   }
 };
 
-// ─── Pipeline: Extract + Analyze in one call (convenience) ───────────────────
+
 
 /**
- * analyzeImage - Full pipeline: image → OCR text → structured analysis
- * Use this when you want to skip calling geminiService.js separately
+ * 
  *
  * @param {string} base64    - Base64 encoded image/PDF
  * @param {string} mimeType  - MIME type e.g. "image/jpeg"

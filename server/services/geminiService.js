@@ -1,8 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+const { generateWithFallback } = require("./geminiFallback");
 import fs from "fs";
 import path from "path";
 
-// ─── Client Initializer ───────────────────────────────────────────────────────
+
 
 const getGeminiClient = () => {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -14,7 +15,7 @@ const getGeminiClient = () => {
   return new GoogleGenerativeAI(apiKey);
 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 
 const toInlinePart = (base64, mimeType) => ({
   inlineData: { data: base64, mimeType: mimeType || "image/jpeg" },
@@ -35,7 +36,7 @@ const getModel = () => {
   return genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); // ✅ one place to change model
 };
 
-// ─── 1. Extract Raw Text ──────────────────────────────────────────────────────
+
 
 export const extractText = async (base64, mimeType) => {
   try {
@@ -59,7 +60,7 @@ Return ONLY the raw extracted text — no commentary, no markdown, no formatting
   }
 };
 
-// ─── 2. Analyze Prescription ──────────────────────────────────────────────────
+
 
 export const analyzePrescription = async (base64, mimeType) => {
   try {
@@ -92,7 +93,7 @@ Return ONLY valid JSON — no markdown, no explanation:
   }
 };
 
-// ─── 3. Analyze Lab Report ────────────────────────────────────────────────────
+
 
 export const analyzeLabReport = async (base64, mimeType) => {
   try {
@@ -125,7 +126,7 @@ Return ONLY valid JSON — no markdown, no explanation:
   }
 };
 
-// ─── 4. Auto-Detect & Analyze ─────────────────────────────────────────────────
+
 
 export const autoAnalyze = async (base64, mimeType) => {
   try {
@@ -151,7 +152,7 @@ export const autoAnalyze = async (base64, mimeType) => {
   }
 };
 
-// ─── 5. Generic Fallback ──────────────────────────────────────────────────────
+
 
 export const genericMedicalAnalysis = async (base64, mimeType) => {
   try {
@@ -173,7 +174,7 @@ export const genericMedicalAnalysis = async (base64, mimeType) => {
   }
 };
 
-// ─── 6. Ask About Report ──────────────────────────────────────────────────────
+
 
 export const askAboutReport = async (base64, mimeType, question) => {
   try {
@@ -196,7 +197,7 @@ Answer clearly in plain English. Keep it under 200 words. Remind the user to con
   }
 };
 
-// ─── 7. Analyze from Local File Path ─────────────────────────────────────────
+
 
 export const analyzeFromFile = async (filePath) => {
   try {

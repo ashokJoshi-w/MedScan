@@ -3,12 +3,12 @@ import { API_BASE } from "../config";
 export const analyzeRequest = async (payload) => {
   const token = localStorage.getItem("medscan_token");
 
-  // ── Image upload → use FormData + multer ────────────────────────────────────
+
   if (payload.imageBase64) {
     const headers = {};
     if (token) headers.Authorization = `Bearer ${token}`;
 
-    // Convert base64 back to a Blob so multer can receive it as a file
+    
     const byteString = atob(payload.imageBase64);
     const ab = new ArrayBuffer(byteString.length);
     const ia = new Uint8Array(ab);
@@ -21,7 +21,7 @@ export const analyzeRequest = async (payload) => {
     formData.append("document", blob, "upload." + (payload.mimeType?.split("/")[1] || "jpg"));
     if (payload.mode) formData.append("mode", payload.mode);
 
-    // Route to correct endpoint based on mode
+    
     const endpointMap = {
       prescription: "prescription",
       lab: "lab-report",
@@ -32,7 +32,7 @@ export const analyzeRequest = async (payload) => {
 
     const res = await fetch(endpoint, {
       method: "POST",
-      headers, // ← DO NOT set Content-Type for FormData, browser sets it automatically
+      headers, 
       body: formData,
     });
 
@@ -42,11 +42,11 @@ export const analyzeRequest = async (payload) => {
     }
 
     const data = await res.json();
-    // Unwrap analysis from server response
+    
     return data?.analysis ?? data;
   }
 
-  // ── Text only → use JSON ────────────────────────────────────────────────────
+  
   const headers = { "Content-Type": "application/json" };
   if (token) headers.Authorization = `Bearer ${token}`;
 
