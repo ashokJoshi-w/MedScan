@@ -13,7 +13,10 @@ const useAnalyze = () => {
     setResult(null);
 
     try {
-      let payload = { mode, textInput };
+      let payload = {
+        text: textInput,   // ✅ was "textInput", server expects "text"
+        mode,
+      };
 
       if (file) {
         const { base64, mimeType } = await imageToBase64(file);
@@ -21,10 +24,15 @@ const useAnalyze = () => {
       }
 
       const data = await analyzeRequest(payload);
-      setResult(data);
-      return data;
+
+      // Server returns { success, mode, analysis } — unwrap the analysis
+      const result = data?.analysis ?? data;
+      setResult(result);
+      return result;
+
     } catch (err) {
       setError(err.message);
+      return null;
     } finally {
       setLoading(false);
     }
