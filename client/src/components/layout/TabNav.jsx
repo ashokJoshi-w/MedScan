@@ -15,7 +15,7 @@ const tabs = [
 
 const TabNav = ({ active, setActive }) => {
   return (
-    <nav className="flex gap-1 bg-slate-100 rounded-xl p-1">
+    <nav className="flex gap-1 bg-slate-100  rounded-xl p-1"> 
       {tabs.map((tab) => (
         <button
           key={tab.id}
