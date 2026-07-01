@@ -105,7 +105,7 @@ export default function Signup({ onSwitch }) {
 
         <Select label="Role" name="role" value={form.role} onChange={handleChange}>
           <option value="doctor">Doctor</option>
-          <option value="radiologist">Radiologist</option>
+          <option value="radiologist">Patient</option>
           <option value="admin">Admin</option>
         </Select>
 
