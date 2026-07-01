@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer";
 import { extractText, askAboutReport } from "../services/geminiService.js";
-import { analyzeText } from "../services/analyzeText.js";
+import { analyzeText } from "../services/AnalyzeText.js";
 
 const router = express.Router();
 
@@ -20,28 +20,27 @@ const upload = multer({
 
 const toBase64 = (buffer) => buffer.toString("base64");
 
-// ─── Shared handler: image → OCR → analyzeText ───────────────────────────────
-// All routes use this so field names are ALWAYS consistent with the frontend
+
 
 const handleAnalysis = async (req, res, mode) => {
   try {
-    // ── Image uploaded ────────────────────────────────────────────────────────
+    
     if (req.file) {
       const base64 = toBase64(req.file.buffer);
       const mimeType = req.file.mimetype;
 
-      // Step 1: OCR
+      
       const extractedText = await extractText(base64, mimeType);
       if (!extractedText?.trim()) {
         return res.status(422).json({ error: "Could not read text from the uploaded document." });
       }
 
-      // Step 2: Analyze with correct prompt → always returns { values, summary_en, ... }
+      
       const analysis = await analyzeText(extractedText, mode);
       return res.json({ success: true, mode, analysis });
     }
 
-    // ── Plain text pasted ─────────────────────────────────────────────────────
+    
     const { text } = req.body;
     if (text?.trim()) {
       const analysis = await analyzeText(text, mode);
@@ -56,7 +55,7 @@ const handleAnalysis = async (req, res, mode) => {
   }
 };
 
-// ─── POST /api/analyze  (text only — frontend default endpoint) ───────────────
+
 
 router.post("/", async (req, res) => {
   try {
@@ -72,33 +71,28 @@ router.post("/", async (req, res) => {
   }
 });
 
-// ─── POST /api/analyze/prescription ──────────────────────────────────────────
+
 
 router.post("/prescription", upload.single("document"), (req, res) =>
   handleAnalysis(req, res, "prescription")
 );
 
-// ─── POST /api/analyze/lab-report ────────────────────────────────────────────
-// ✅ Now uses analyzeText("lab") → returns { values, summary_en, advice_en }
-// ✅ NOT analyzeLabReport() which returned { testResults } — wrong field names
+
 
 router.post("/lab-report", upload.single("document"), (req, res) =>
   handleAnalysis(req, res, "lab")
 );
 
-// ─── POST /api/analyze/vitals ─────────────────────────────────────────────────
 
 router.post("/vitals", upload.single("document"), (req, res) =>
   handleAnalysis(req, res, "vitals")
 );
 
-// ─── POST /api/analyze/auto ───────────────────────────────────────────────────
 
 router.post("/auto", upload.single("document"), (req, res) =>
   handleAnalysis(req, res, "general")
 );
 
-// ─── POST /api/analyze/extract-text ──────────────────────────────────────────
 
 router.post("/extract-text", upload.single("document"), async (req, res) => {
   try {
@@ -111,7 +105,7 @@ router.post("/extract-text", upload.single("document"), async (req, res) => {
   }
 });
 
-// ─── POST /api/analyze/ask ────────────────────────────────────────────────────
+
 
 router.post("/ask", upload.single("document"), async (req, res) => {
   try {
@@ -130,7 +124,7 @@ router.post("/ask", upload.single("document"), async (req, res) => {
   }
 });
 
-// ─── Multer Error Handler ─────────────────────────────────────────────────────
+
 
 router.use((err, req, res, next) => {
   if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {

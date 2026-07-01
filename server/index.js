@@ -23,7 +23,13 @@ if (!geminiKey || geminiKey === "your_gemini_api_key_here") {
 
 const app = express();
 
-app.use(cors({ origin: "http://localhost:5173" }));
+const allowedOrigins = process.env.CLIENT_URL?.split(",") || [];
+
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true
+}));
+
 app.use(express.json({ limit: "10mb" }));
 
 app.use("/api/auth", authRoute);
