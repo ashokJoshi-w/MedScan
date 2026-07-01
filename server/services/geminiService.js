@@ -50,7 +50,7 @@ const fileToInlinePart = (filePath) => {
 export const extractText = async (base64, mimeType) => {
   try {
     const genAI = getGeminiClient();
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = gemini.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `You are a medical OCR engine. Extract ALL text from this medical document exactly as written.
 Include every word, number, dosage, lab value, date, and doctor/patient name.
@@ -77,7 +77,7 @@ Return ONLY the raw extracted text — no commentary, no markdown, no formatting
 export const analyzePrescription = async (base64, mimeType) => {
   try {
     const genAI = getGeminiClient();
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `You are an expert clinical pharmacist analyzing a prescription image.
 Extract and analyze the prescription. Return a JSON object with this exact structure:
@@ -139,7 +139,7 @@ Return ONLY valid JSON. No markdown, no explanation, no extra text.`;
 export const analyzeLabReport = async (base64, mimeType) => {
   try {
     const genAI = getGeminiClient();
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `You are a senior clinical pathologist analyzing a lab report image.
 Extract all test results and analyze them medically. Return a JSON object with this exact structure:
@@ -203,7 +203,7 @@ Return ONLY valid JSON. No markdown, no explanation, no extra text.`;
 export const autoAnalyze = async (base64, mimeType) => {
   try {
     const genAI = getGeminiClient();
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     // Step 1: Detect document type
     const detectPrompt = `Look at this medical document image. 
@@ -241,7 +241,7 @@ Return ONLY the single classification word, nothing else.`;
 export const genericMedicalAnalysis = async (base64, mimeType) => {
   try {
     const genAI = getGeminiClient();
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `You are a medical AI assistant. Analyze this medical document thoroughly.
 Return a JSON object with this structure:
@@ -280,7 +280,7 @@ Return ONLY valid JSON. No markdown, no extra text.`;
 export const askAboutReport = async (base64, mimeType, question) => {
   try {
     const genAI = getGeminiClient();
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `You are a helpful medical AI assistant. The user has uploaded a medical document and is asking a question about it.
 

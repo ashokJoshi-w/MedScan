@@ -172,7 +172,7 @@ export const analyzeText = async (text, mode) => {
   try {
     const gemini = getGemini();
     const model = gemini.getGenerativeModel({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       generationConfig: {
         temperature: 0.2,      // Low temp = more consistent structured output
         topP: 0.8,
