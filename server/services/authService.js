@@ -1,32 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const USERS_FILE = path.join(__dirname, "../data/users.json");
-
-const users = new Map();
-
-const loadUsers = () => {
-  try {
-    if (!fs.existsSync(USERS_FILE)) return;
-    const data = JSON.parse(fs.readFileSync(USERS_FILE, "utf-8"));
-    for (const user of data) {
-      users.set(user.email, user);
-    }
-  } catch (err) {
-    console.error("Failed to load users:", err.message);
-  }
-};
-
-const saveUsers = () => {
-  fs.mkdirSync(path.dirname(USERS_FILE), { recursive: true });
-  fs.writeFileSync(USERS_FILE, JSON.stringify([...users.values()], null, 2));
-};
-
-loadUsers();
+import User from "../models/User.js"; // ← MongoDB model
 
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -35,17 +9,20 @@ const generateToken = (userId) => {
 };
 
 const safeUser = (user) => ({
-  id: user.id,
+  id: user._id,        // ← MongoDB uses _id not id
   name: user.name,
   email: user.email,
   role: user.role,
+  plan: user.plan,
   createdAt: user.createdAt,
 });
 
 const signup = async ({ name, email, password, role = "doctor" }) => {
   const normalizedEmail = email.toLowerCase().trim();
 
-  if (users.has(normalizedEmail)) {
+  // Check duplicate
+  const existing = await User.findOne({ email: normalizedEmail });
+  if (existing) {
     throw new Error("An account with this email already exists.");
   }
 
@@ -56,44 +33,38 @@ const signup = async ({ name, email, password, role = "doctor" }) => {
   const salt = await bcrypt.genSalt(12);
   const passwordHash = await bcrypt.hash(password, salt);
 
-  const user = {
-    id: `usr_${Date.now()}`,
+  const user = await User.create({
     name: name.trim(),
     email: normalizedEmail,
-    passwordHash,
+    password: passwordHash,
     role,
-    createdAt: new Date().toISOString(),
-  };
+  });
 
-  users.set(normalizedEmail, user);
-  saveUsers();
-
-  const token = generateToken(user.id);
+  const token = generateToken(user._id);
   return { user: safeUser(user), token };
 };
 
 const login = async ({ email, password }) => {
   const normalizedEmail = email.toLowerCase().trim();
-  const user = users.get(normalizedEmail);
 
+  const user = await User.findOne({ email: normalizedEmail });
   if (!user) {
     throw new Error("Invalid email or password.");
   }
 
-  const isMatch = await bcrypt.compare(password, user.passwordHash);
+  const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     throw new Error("Invalid email or password.");
   }
 
-  const token = generateToken(user.id);
+  const token = generateToken(user._id);
   return { user: safeUser(user), token };
 };
 
 const getMe = async (userId) => {
-  for (const user of users.values()) {
-    if (user.id === userId) return safeUser(user);
-  }
-  throw new Error("User not found.");
+  const user = await User.findById(userId);
+  if (!user) throw new Error("User not found.");
+  return safeUser(user);
 };
 
 export { signup, login, getMe };

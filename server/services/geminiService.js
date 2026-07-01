@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-const { generateWithFallback } = require("./geminiFallback");
+import generateWithFallback from "./geminiFallback.js";
+
 import fs from "fs";
 import path from "path";
 

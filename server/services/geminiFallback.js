@@ -1,4 +1,5 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -43,4 +44,4 @@ async function generateWithFallback(prompt, { maxRetries = 3, timeoutMs = 20000 
   throw new Error("All Gemini models overloaded — try Claude fallback or retry later");
 }
 
-module.exports = { generateWithFallback };
+export default generateWithFallback;

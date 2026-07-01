@@ -1,41 +1,76 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
-const STORAGE_KEY = "medscan_history";
+const API = "http://localhost:3001/api";
+
+const getToken = () => localStorage.getItem("medscan_token");
 
 const useHistory = () => {
-  const [history, setHistory] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const persist = (updated) => {
-    setHistory(updated);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-  };
+  // Fetch all reports from MongoDB
+  const fetchHistory = useCallback(async () => {
+    try {
+      const res = await fetch(`${API}/reports`, {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      if (!res.ok) throw new Error("Failed to fetch");
+      const data = await res.json();
 
-  const addToHistory = (entry) => {
-    const updated = [
-      {
-        ...entry,
-        id: entry.id ?? Date.now(),
-        date: entry.date ?? new Date().toLocaleString("en-IN"),
-        status: entry.status ?? "normal",
-      },
-      ...history,
-    ].slice(0, 50);
-    persist(updated);
-  };
+      // Normalize MongoDB records to the shape the UI expects
+      const normalized = data.map((item) => ({
+        id:     item._id,
+        type:   item.type,
+        title:  item.fileName || "Analysis record",
+        date:   new Date(item.createdAt).toLocaleString("en-IN"),
+        status: item.status || "normal",
+        analysisResult: item.analysisResult,
+      }));
 
-  const removeFromHistory = (id) => {
-    persist(history.filter((item, index) => (item.id ?? index) !== id));
-  };
+      setHistory(normalized);
+    } catch (err) {
+      console.error("useHistory fetch error:", err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const clearHistory = () => {
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
+
+  // No longer needed to manually add — analyze route saves to DB automatically
+  // But kept for compatibility with any page still calling it
+  const addToHistory = useCallback(() => {
+    fetchHistory(); // just re-fetch after a new analysis
+  }, [fetchHistory]);
+
+  const removeFromHistory = useCallback(async (id) => {
+    try {
+      await fetch(`${API}/reports/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      setHistory((prev) => prev.filter((item) => item.id !== id));
+    } catch (err) {
+      console.error("Delete error:", err.message);
+    }
+  }, []);
+
+  const clearHistory = useCallback(async () => {
+    // Delete all one by one
+    await Promise.all(
+      history.map((item) =>
+        fetch(`${API}/reports/${item.id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${getToken()}` },
+        })
+      )
+    );
     setHistory([]);
-    localStorage.removeItem(STORAGE_KEY);
-  };
+  }, [history]);
 
-  return { history, addToHistory, removeFromHistory, clearHistory };
+  return { history, loading, addToHistory, removeFromHistory, clearHistory, refetch: fetchHistory };
 };
 
 export default useHistory;
