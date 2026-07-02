@@ -44,6 +44,7 @@ Analyze these lab results and return ONLY valid JSON — no markdown, no explana
 
 Schema:
 {
+  "title": "short human-readable name for this report, e.g. 'Complete Blood Count (CBC) Report' or 'Lipid Profile Report', based on the tests found",
   "summary_en": "2-3 sentence overall summary in English",
   "summary_hi": "2-3 वाक्यों में हिंदी में सारांश",
   "values": [
@@ -73,6 +74,7 @@ Analyze these vitals and return ONLY valid JSON — no markdown, no explanation,
 
 Schema:
 {
+  "title": "short human-readable name for this record, e.g. 'Vitals Check — BP 120/80' using the most notable reading(s)",
   "summary_en": "overall summary in English",
   "summary_hi": "हिंदी में सारांश",
   "readings": [
@@ -98,6 +100,7 @@ Analyze this medical document and return ONLY valid JSON — no markdown, no exp
 
 Schema:
 {
+  "title": "short human-readable name for this document, e.g. 'Diabetes Follow-up Report'",
   "documentType": "what type of document this is",
   "summary_en": "plain English summary",
   "summary_hi": "हिंदी में सारांश",
@@ -154,6 +157,34 @@ const friendlyError = (err) => {
   return err;
 };
 
+/**
+ * deriveTitle - Builds a human-readable title from the analysis result.
+ * Handles the prescription case specially since it returns an array,
+ * not a single object with a top-level "title" field.
+ *
+ * @param {string} mode      - "prescription" | "lab" | "vitals" | "general"
+ * @param {object|array} analysis - Result returned by analyzeText()
+ * @returns {string} - Human-readable title, safe to use as fileName
+ */
+export const deriveTitle = (mode, analysis) => {
+  const today = new Date().toLocaleDateString();
+
+  if (mode === "prescription" && Array.isArray(analysis)) {
+    const drugNames = analysis.map((item) => item?.name).filter(Boolean);
+    if (!drugNames.length) return `Prescription - ${today}`;
+    const shown = drugNames.slice(0, 2).join(" + ");
+    const suffix = drugNames.length > 2 ? " + more" : "";
+    return `${shown}${suffix} Prescription`;
+  }
+
+  if (analysis?.title?.trim()) {
+    return analysis.title.trim();
+  }
+
+  const modeLabel = mode ? mode.charAt(0).toUpperCase() + mode.slice(1) : "General";
+  return `${modeLabel} Analysis - ${today}`;
+};
+
 
 /**
  * analyzeText - Takes extracted text and analyzes it by mode
@@ -184,6 +215,7 @@ export const analyzeText = async (text, mode) => {
     if (!raw?.trim()) {
       throw new Error("Gemini returned an empty response. Please try again.");
     }
+    
 
     return parseJsonResponse(raw);
 
@@ -197,12 +229,12 @@ export const analyzeText = async (text, mode) => {
 /**
  * 
  *
- * @param {string} base64    - Base64 encoded image/PDF
- * @param {string} mimeType  - MIME type e.g. "image/jpeg"
- * @param {string} mode      - "prescription" | "lab" | "vitals" | "general"
+ * @param {string} base64    
+ * @param {string} mimeType  
+ * @param {string} mode      
  */
 export const analyzeImage = async (base64, mimeType, mode) => {
-  // Import extractText from geminiService to avoid duplication
+
   const { extractText } = await import("./geminiService.js");
 
   const text = await extractText(base64, mimeType);

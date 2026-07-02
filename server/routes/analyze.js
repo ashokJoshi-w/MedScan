@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer";
 import { extractText, askAboutReport } from "../services/geminiService.js";
-import { analyzeText } from "../services/AnalyzeText.js";
+import { analyzeText, deriveTitle } from "../services/AnalyzeText.js";
 import { protect } from "../middleware/authMiddleware.js";  // ← new
 import Report from "../models/Report.js";                   // ← new
 
@@ -49,7 +49,7 @@ const handleAnalysis = async (req, res, mode) => {
       if (req.user?.id) {
         await Report.create({
           userId:         req.user.id,
-          fileName:       req.file.originalname,
+          fileName:       deriveTitle(mode, analysis),
           analysisResult: analysis,
           status:         analysis?.status || "Normal",
           type:           modeToType[mode] || "report",
@@ -67,7 +67,7 @@ const handleAnalysis = async (req, res, mode) => {
       if (req.user?.id) {
         await Report.create({
           userId:         req.user.id,
-          fileName:       "pasted-text",
+          fileName:       deriveTitle(mode, analysis),
           analysisResult: analysis,
           status:         analysis?.status || "Normal",
           type:           modeToType[mode] || "report",
@@ -98,7 +98,7 @@ router.post("/", protect, async (req, res) => {
     if (req.user?.id) {
       await Report.create({
         userId:         req.user.id,
-        fileName:       "pasted-text",
+        fileName:       deriveTitle(mode || "general", analysis),
         analysisResult: analysis,
         status:         analysis?.status || "Normal",
         type:           modeToType[mode] || "report",
@@ -157,7 +157,7 @@ router.post("/ask", upload.single("document"), async (req, res) => {
   }
 });
 
-// ─── Error Handler ────────────────────────────────────────────────────────────
+
 router.use((err, req, res, next) => {
   if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
     return res.status(400).json({ error: "File too large. Maximum 10MB." });

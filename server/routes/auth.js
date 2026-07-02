@@ -1,4 +1,3 @@
-
 import express from "express";
 const router = express.Router();
 import { signup, login, getMe } from "../services/authService.js";
