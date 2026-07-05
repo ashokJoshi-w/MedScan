@@ -1,6 +1,6 @@
 <div align="center">
 
-<img width="1586" height="992" alt="banner" src="https://github.com/user-attachments/assets/1ada3dde-8d5c-4993-be1f-c94f9ea770dd" />
+<img width="1942" height="809" alt="banner2" src="https://github.com/user-attachments/assets/d13451dc-0ea5-4371-b640-a83bcbfcba06" />
 
 # 🩺 MedScan
 
