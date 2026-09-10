@@ -20,7 +20,6 @@ import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import MarketingNavbar from '../components/layout/MarketingNavbar'
 import Footer from '../components/layout/Footer'
-import DashboardPreview from '../components/marketing/DashboardPreview'
 import TestimonialCarousel from '../components/marketing/TestimonialCarousel'
 import FAQSection from '../components/marketing/FAQSection'
 import { TiltCard, FloatingElement } from '../components/marketing/FeatureCard'
@@ -311,12 +310,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Dashboard Preview */}
-      <section className="py-24 lg:py-28 bg-surface section-tint-green">
-        <div className="page-container">
-          <DashboardPreview />
-        </div>
-      </section>
+    
 
       {/* Benefits */}
       <section className="py-24 lg:py-28 bg-section">

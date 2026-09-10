@@ -60,11 +60,11 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden md:flex fixed left-0 top-0 h-screen w-64 flex-col bg-section/80 backdrop-blur-sm border-r border-border z-30">
-      <div className="px-5 py-6">
+      <div className=" px-5 py-6">
         <Logo to="/dashboard" />
       </div>
 
-      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+      <nav className="  flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
         {navItems.map((item) => (
           <NavItem key={item.to} {...item} />
         ))}
@@ -76,7 +76,7 @@ export default function Sidebar() {
         </div>
       </nav>
 
-      <div className="px-4 py-4 border-t border-border/80">
+      <div className=" px-4 py-4 border-t border-border/80">
         <Link
           to="/profile"
           className="flex items-center gap-3 mb-3 p-3 rounded-xl bg-white border border-border hover:border-primary/20 hover:shadow-card transition-all duration-200"

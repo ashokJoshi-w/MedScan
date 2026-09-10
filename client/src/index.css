@@ -163,7 +163,7 @@
   /* App / dashboard backgrounds */
   .app-bg {
     background:
-      radial-gradient(ellipse 50% 40% at 100% 0%, rgba(59, 130, 246, 0.04) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 100% 0%, rgba(55, 127, 242, 0.04) 0%, transparent 50%),
       radial-gradient(ellipse 40% 30% at 0% 100%, rgba(16, 185, 129, 0.04) 0%, transparent 50%),
       #F8FAFC;
   }
@@ -214,3 +214,4 @@
     transition-duration: 0.01ms !important;
   }
 }
+

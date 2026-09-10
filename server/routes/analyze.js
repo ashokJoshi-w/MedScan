@@ -7,7 +7,7 @@ import Report from "../models/Report.js";                   // ← new
 
 const router = express.Router();
 
-// ─── Multer Config ────────────────────────────────────────────────────────────
+
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -22,7 +22,7 @@ const upload = multer({
 
 const toBase64 = (buffer) => buffer.toString("base64");
 
-// mode → report type mapping
+
 const modeToType = {
   prescription: "prescription",
   lab:          "report",
@@ -45,7 +45,7 @@ const handleAnalysis = async (req, res, mode) => {
 
       analysis = await analyzeText(extractedText, mode);
 
-      // ── Save to MongoDB if user is logged in ────────────────
+     
       if (req.user?.id) {
         await Report.create({
           userId:         req.user.id,

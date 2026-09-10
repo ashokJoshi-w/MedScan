@@ -215,7 +215,7 @@ export const analyzeText = async (text, mode) => {
     if (!raw?.trim()) {
       throw new Error("Gemini returned an empty response. Please try again.");
     }
-    
+    console.log("RAW GEMINI RESPONSE:", raw);
 
     return parseJsonResponse(raw);
 

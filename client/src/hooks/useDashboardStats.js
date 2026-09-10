@@ -63,13 +63,13 @@ export default function useDashboardStats() {
           total:        statsData.total,
           prescriptions: statsData.prescriptions,
           labReports:   statsData.reports,
-          vitalsLogged: statsData.vitals,
+          vitalsLogged:  statsData.vitals,
           recentActivity,
           trends: {
             total:         getTrend(thisWeek.length, lastWeek.length),
             prescriptions: getTrend(countType(thisWeek, "prescription"), countType(lastWeek, "prescription")),
             labReports:    getTrend(countType(thisWeek, "report"),       countType(lastWeek, "report")),
-            vitals:        getTrend(countType(thisWeek, "vitals"),       countType(lastWeek, "vitals")),
+            vitals:       getTrend(countType(thisWeek, "vitals"),       countType(lastWeek, "vitals")),
           },
         });
 
