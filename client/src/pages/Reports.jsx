@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, FlaskConical, FileText, MoreHorizontal, Eye, Download, Share2, X, Trash2 } from 'lucide-react'
+import { Search, FlaskConical, FileText, MoreHorizontal, Eye, Download, Share2, X, Trash2, ArrowUpRight, ArrowDownRight, ArrowLeftRight, TrendingUp } from 'lucide-react'
 import PageHeader from '../components/ui/PageHeader'
 import Badge from '../components/ui/Badge'
 import EmptyState from '../components/ui/EmptyState'
@@ -322,7 +322,41 @@ function getHealthScore(report) {
 
 // ─── Report Detail Modal ────────────────────────────────────────────────────
 
-function ReportModal({ report, onClose }) {
+function TrendTracker({ report, history }) {
+  const previousReport = useMemo(() => {
+    const sameType = history.filter(h => h.type === report.type && new Date(h.date) < new Date(report.date))
+    return sameType.length > 0 ? sameType.sort((a,b) => new Date(b.date) - new Date(a.date))[0] : null
+  }, [report, history])
+
+  if (!previousReport || !report.analysisResult?.values || !previousReport.analysisResult?.values) return null
+
+  return (
+    <div className="mt-4 border-t border-border pt-4">
+      <p className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2.5">Trends vs Previous ({previousReport.date})</p>
+      <div className="grid gap-2">
+        {report.analysisResult.values.map((v, i) => {
+          const prevV = previousReport.analysisResult.values.find(p => p.name === v.name)
+          if (!prevV || isNaN(parseFloat(v.value)) || isNaN(parseFloat(prevV.value))) return null
+
+          const change = ((parseFloat(v.value) - parseFloat(prevV.value)) / parseFloat(prevV.value)) * 100
+          if (Math.abs(change) < 1) return null
+
+          return (
+            <div key={i} className="flex items-center justify-between text-sm p-2 rounded-lg bg-surface">
+              <span className="font-medium">{v.name}</span>
+              <span className={`flex items-center font-semibold ${change > 0 ? 'text-danger' : 'text-success'}`}>
+                {change > 0 ? <ArrowUpRight className="w-4 h-4 mr-1"/> : <ArrowDownRight className="w-4 h-4 mr-1"/>}
+                {Math.abs(change).toFixed(1)}%
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function ReportModal({ report, onClose, history }) {
   if (!report) return null
 
   const config = typeConfig[report.type] || typeConfig.lab
@@ -337,6 +371,7 @@ function ReportModal({ report, onClose }) {
         className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Header... (same) */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-white">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 rounded-lg bg-surface border border-border flex items-center justify-center shrink-0">
@@ -347,12 +382,7 @@ function ReportModal({ report, onClose }) {
               <p className="text-xs text-ink-faint">{config.label} • {report.date}</p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-surface transition-colors shrink-0"
-            aria-label="Close"
-          >
+          <button type="button" onClick={onClose} className="p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-surface transition-colors shrink-0" aria-label="Close">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -374,9 +404,8 @@ function ReportModal({ report, onClose }) {
             <div>
               <p className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2.5">Full Analysis</p>
               <AnalysisDetails report={report} />
+              <TrendTracker report={report} history={history} />
             </div>
-          ) : !report.summary ? (
-            <p className="text-sm text-ink-faint">No detailed analysis data available for this record.</p>
           ) : null}
         </div>
       </div>
@@ -679,7 +708,7 @@ export default function Reports() {
         </Card>
       )}
 
-      <ReportModal report={viewingReport} onClose={() => setViewingReport(null)} />
+      <ReportModal report={viewingReport} onClose={() => setViewingReport(null)} history={history} />
 
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-ink text-white text-sm px-4 py-2.5 rounded-lg shadow-lg z-50">

@@ -11,6 +11,7 @@ import Vitals from './pages/Vitals'
 import HealthInsights from './pages/HealthInsights'
 import History from './pages/History'
 import Profile from './pages/Profile'
+import Reminders from './pages/Reminders'
 import Settings from './pages/Settings'
 
 const App = () => {
@@ -31,6 +32,7 @@ const App = () => {
             <Route path="/health-insights" element={<HealthInsights />} />
             <Route path="/history" element={<History />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/reminders" element={<Reminders />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

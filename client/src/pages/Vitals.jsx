@@ -11,7 +11,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-import { HeartPulse, Activity, Scale, Droplets, Sparkles, Loader2 } from 'lucide-react'
+import { HeartPulse, Activity, Scale, Droplets, Sparkles, Loader2, Trash2 } from 'lucide-react'
 import PageHeader from '../components/ui/PageHeader'
 import StatCard from '../components/ui/StatCard'
 import Badge from '../components/ui/Badge'
@@ -21,7 +21,8 @@ import { AnalysisLoading } from '../components/ui/LoadingState'
 import useAnalyze from '../hooks/useAnalyze'
 import useHistory from '../hooks/useHistory'
 
-const VITALS_KEY = 'medscan_vitals_log'
+const API = 'http://localhost:3001/api'
+const getToken = () => localStorage.getItem('medscan_token')
 
 const fields = [
   { id: 'bp', label: 'Blood Pressure (mmHg)', placeholder: '120/80', type: 'text' },
@@ -31,15 +32,6 @@ const fields = [
   { id: 'temp', label: 'Temperature (°F)', placeholder: '98.6', type: 'number' },
   { id: 'spo2', label: 'SpO₂ (%)', placeholder: '98', type: 'number' },
 ]
-
-const loadLogs = () => {
-  try {
-    const saved = localStorage.getItem(VITALS_KEY)
-    return saved ? JSON.parse(saved) : []
-  } catch {
-    return []
-  }
-}
 
 const tooltipStyle = {
   borderRadius: '12px',
@@ -56,36 +48,84 @@ function computeBMI(weight, heightCm = 170) {
 
 export default function Vitals() {
   const [values, setValues] = useState({})
-  const [logs, setLogs] = useState(loadLogs)
+  const [logs, setLogs] = useState([])
+  const [loadingLogs, setLoadingLogs] = useState(true)
   const [lang, setLang] = useState('en')
   const { analyze, loading, error, result, reset } = useAnalyze()
   const { addToHistory } = useHistory()
 
+  // Fetch vitals from backend
   useEffect(() => {
-    localStorage.setItem(VITALS_KEY, JSON.stringify(logs))
-    window.dispatchEvent(new Event('medscan-vitals-update'))
-  }, [logs])
+    const fetchVitals = async () => {
+      try {
+        const res = await fetch(`${API}/vitals`, {
+          headers: { Authorization: `Bearer ${getToken()}` },
+        })
+        if (!res.ok) throw new Error('Failed to fetch vitals')
+        const data = await res.json()
+        setLogs(data)
+      } catch (err) {
+        console.error('Vitals fetch error:', err.message)
+      } finally {
+        setLoadingLogs(false)
+      }
+    }
+    fetchVitals()
+  }, [])
 
   const hasInput = Object.values(values).some((v) => v)
   const handleChange = (id, val) => setValues((prev) => ({ ...prev, [id]: val }))
 
-  const handleSaveLog = () => {
+  const handleSaveLog = async () => {
     const filled = Object.entries(values).filter(([, v]) => v)
     if (!filled.length) return
 
-    const entry = { id: Date.now(), date: new Date().toISOString(), ...values }
-    setLogs((prev) => [entry, ...prev].slice(0, 90))
-    addToHistory({
-      type: 'vitals',
-      title: 'Vitals logged',
-      summary: [
-        values.bp && `BP ${values.bp}`,
-        values.hr && `HR ${values.hr} bpm`,
-        values.weight && `Weight ${values.weight} kg`,
-      ].filter(Boolean).join(', ') || 'Vitals entry saved',
-      status: 'normal',
-    })
-    setValues({})
+    try {
+      const res = await fetch(`${API}/vitals`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify({
+          bp: values.bp || undefined,
+          heartRate: values.hr ? Number(values.hr) : undefined,
+          temperature: values.temp ? Number(values.temp) : undefined,
+          bloodSugar: values.bs ? Number(values.bs) : undefined,
+          weight: values.weight ? Number(values.weight) : undefined,
+        }),
+      })
+      if (!res.ok) throw new Error('Failed to save vitals')
+      const saved = await res.json()
+
+      setLogs((prev) => [saved, ...prev].slice(0, 90))
+
+      addToHistory({
+        type: 'vitals',
+        title: 'Vitals logged',
+        summary: [
+          values.bp && `BP ${values.bp}`,
+          values.hr && `HR ${values.hr} bpm`,
+          values.weight && `Weight ${values.weight} kg`,
+        ].filter(Boolean).join(', ') || 'Vitals entry saved',
+        status: 'normal',
+      })
+      setValues({})
+    } catch (err) {
+      console.error('Save vitals error:', err.message)
+    }
+  }
+
+  const handleDeleteLog = async (id) => {
+    try {
+      await fetch(`${API}/vitals/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${getToken()}` },
+      })
+      setLogs((prev) => prev.filter((l) => l._id !== id))
+    } catch (err) {
+      console.error('Delete vitals error:', err.message)
+    }
   }
 
   const handleAnalyze = async () => {
@@ -94,8 +134,6 @@ export default function Vitals() {
     const text = filled.map(([k, v]) => `${k}: ${v}`).join(', ')
     const data = await analyze({ textInput: text, mode: 'vitals' })
     if (data) {
-      const entry = { id: Date.now(), date: new Date().toISOString(), ...values }
-      setLogs((prev) => [entry, ...prev].slice(0, 90))
       addToHistory({
         type: 'vitals',
         title: 'Vitals AI analysis',
@@ -121,16 +159,16 @@ export default function Vitals() {
       .reverse()
       .map((l) => {
         const [sys, dia] = l.bp.split('/').map(Number)
-        return { day: format(parseISO(l.date), 'EEE'), systolic: sys, diastolic: dia }
+        return { day: format(parseISO(l.createdAt || l.date), 'EEE'), systolic: sys, diastolic: dia }
       })
   }, [logs])
 
   const hrChartData = useMemo(() => {
     return logs
-      .filter((l) => l.hr)
+      .filter((l) => l.heartRate || l.hr)
       .slice(0, 7)
       .reverse()
-      .map((l) => ({ day: format(parseISO(l.date), 'EEE'), bpm: Number(l.hr) }))
+      .map((l) => ({ day: format(parseISO(l.createdAt || l.date), 'EEE'), bpm: Number(l.heartRate || l.hr) }))
   }, [logs])
 
   const weightChartData = useMemo(() => {
@@ -138,7 +176,7 @@ export default function Vitals() {
       .filter((l) => l.weight)
       .slice(0, 30)
       .reverse()
-      .map((l) => ({ day: format(parseISO(l.date), 'MMM d'), kg: Number(l.weight) }))
+      .map((l) => ({ day: format(parseISO(l.createdAt || l.date), 'MMM d'), kg: Number(l.weight) }))
   }, [logs])
 
   return (
@@ -150,8 +188,8 @@ export default function Vitals() {
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         <StatCard title="Blood Pressure" value={latest?.bp || '—'} icon={HeartPulse} color="teal" index={0} />
-        <StatCard title="Heart Rate" value={latest?.hr ? `${latest.hr}` : '—'} icon={Activity} color="green" suffix={latest?.hr ? ' bpm' : ''} index={1} />
-        <StatCard title="Blood Sugar" value={latest?.bs || '—'} icon={Droplets} color="amber" suffix={latest?.bs ? ' mg/dL' : ''} index={2} />
+        <StatCard title="Heart Rate" value={latest?.heartRate || latest?.hr ? `${latest.heartRate || latest.hr}` : '—'} icon={Activity} color="green" suffix={latest?.heartRate || latest?.hr ? ' bpm' : ''} index={1} />
+        <StatCard title="Blood Sugar" value={latest?.bloodSugar || latest?.bs || '—'} icon={Droplets} color="amber" suffix={latest?.bloodSugar || latest?.bs ? ' mg/dL' : ''} index={2} />
         <StatCard title="Weight" value={latest?.weight || '—'} icon={Scale} color="blue" suffix={latest?.weight ? ' kg' : ''} index={3} />
         <StatCard title="BMI" value={bmi || '—'} icon={Activity} color="teal" index={4} />
       </div>
@@ -186,7 +224,7 @@ export default function Vitals() {
             <button
               type="button"
               onClick={handleSaveLog}
-              disabled={!hasInput}
+              disabled={loadingLogs || !hasInput}
               className="btn-secondary text-sm py-2.5 px-5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Save Log
@@ -301,7 +339,7 @@ export default function Vitals() {
 
       {logs.length > 0 && (
         <Card padding={false}>
-          <div className="px-6 py-4 border-b border-border">
+          <div className="px-6 py-4 border-b border-border flex items-center justify-between">
             <h2 className="text-lg font-semibold text-ink">Recent Vitals</h2>
           </div>
           <div className="overflow-x-auto">
@@ -313,16 +351,27 @@ export default function Vitals() {
                   <th className="text-left px-6 py-3 text-xs font-semibold text-ink-muted uppercase">HR</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-ink-muted uppercase">Weight</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-ink-muted uppercase">Sugar</th>
+                  <th className="text-right px-6 py-3 text-xs font-semibold text-ink-muted uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {logs.slice(0, 10).map((log) => (
-                  <tr key={log.id} className="hover:bg-surface/50 transition-colors">
-                    <td className="px-6 py-3 text-ink-muted">{format(parseISO(log.date), 'MMM d, yyyy')}</td>
+                  <tr key={log._id} className="hover:bg-surface/50 transition-colors">
+                    <td className="px-6 py-3 text-ink-muted">{format(parseISO(log.createdAt || log.date), 'MMM d, yyyy')}</td>
                     <td className="px-6 py-3 text-ink">{log.bp || '—'}</td>
-                    <td className="px-6 py-3 text-ink">{log.hr ? `${log.hr} bpm` : '—'}</td>
+                    <td className="px-6 py-3 text-ink">{log.heartRate || log.hr ? `${log.heartRate || log.hr} bpm` : '—'}</td>
                     <td className="px-6 py-3 text-ink">{log.weight ? `${log.weight} kg` : '—'}</td>
-                    <td className="px-6 py-3 text-ink">{log.bs ? `${log.bs} mg/dL` : '—'}</td>
+                    <td className="px-6 py-3 text-ink">{log.bloodSugar || log.bs ? `${log.bloodSugar || log.bs} mg/dL` : '—'}</td>
+                    <td className="px-6 py-3">
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteLog(log._id)}
+                        className="p-1.5 text-ink-faint hover:text-red-500 transition-colors"
+                        aria-label="Delete vitals record"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -331,7 +380,7 @@ export default function Vitals() {
         </Card>
       )}
 
-      {logs.length === 0 && !result && (
+      {logs.length === 0 && !result && loadingLogs === false && (
         <Card>
           <EmptyState
             icon={HeartPulse}

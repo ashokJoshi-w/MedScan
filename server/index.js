@@ -14,6 +14,8 @@ import analyzeRoute from "./routes/analyze.js";
 import authRoute from "./routes/auth.js";
 import reportsRoute from "./routes/reports.js";    // ← new
 import dashboardRoute from "./routes/dashboard.js"; // ← new
+import vitalsRoute from "./routes/vitals.js";       // ← new
+import remindersRoute from "./routes/reminders.js"; // ← new
 
 // ── MongoDB connect ──────────────────────────────────────────
 const connectDB = async () => {
@@ -55,6 +57,8 @@ app.use("/api/auth", authRoute);
 app.use("/api/analyze", analyzeRoute);
 app.use("/api/reports", reportsRoute);     // ← new
 app.use("/api/dashboard", dashboardRoute); // ← new
+app.use("/api/vitals", vitalsRoute);       // ← new
+app.use("/api/reminders", remindersRoute); // ← new
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
