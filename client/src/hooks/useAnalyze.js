@@ -27,6 +27,9 @@ const useAnalyze = () => {
 
       // Server returns { success, mode, analysis } — unwrap the analysis
       const result = data?.analysis ?? data;
+      if (result && typeof result === "object" && !Array.isArray(result) && !result.summary_en && !result.values && !result.title && !result.medications) {
+        throw new Error(result.error || "Analysis failed. Please try again.");
+      }
       setResult(result);
       return result;
 

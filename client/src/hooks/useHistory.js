@@ -17,10 +17,11 @@ const useHistory = () => {
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
 
-      // Normalize MongoDB records to the shape the UI expects
+      // Normalize MongoDB records to the shape the UI expects.
+      // The DB stores lab reports as type "report"; the UI calls them "lab".
       const normalized = data.map((item) => ({
         id:     item._id,
-        type:   item.type,
+        type:   item.type === "report" ? "lab" : item.type,
         title:  item.fileName || "Analysis record",
         date:   new Date(item.createdAt).toLocaleString("en-IN"),
         status: item.status || "normal",

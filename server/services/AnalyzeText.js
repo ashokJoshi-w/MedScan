@@ -128,16 +128,8 @@ const parseJsonResponse = (raw) => {
   try {
     return JSON.parse(clean);
   } catch {
-    
-    const jsonMatch = clean.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
-    if (jsonMatch) {
-      try {
-        return JSON.parse(jsonMatch[0]);
-      } catch {
-        // fall through
-      }
-    }
-    throw new Error("AI returned an invalid response format. Please try again.");
+    const snippet = clean.length > 200 ? clean.substring(0, 200) + "..." : clean;
+    throw new Error(`AI returned an invalid response format. Raw response (${snippet}):\n${clean}\n\nPlease try again.`);
   }
 };
 
@@ -203,9 +195,12 @@ export const analyzeText = async (text, mode) => {
     const model = gemini.getGenerativeModel({
       model: "gemini-2.5-flash",
       generationConfig: {
-        temperature: 0.2,      
+        temperature: 0.2,
         topP: 0.8,
-        maxOutputTokens: 2048,
+        // Lab reports are bilingual (EN + HI) and can be long. 2048 was too
+        // small — Gemini cut off mid-JSON, which made JSON.parse fail and
+        // surfaced as "AI returned an invalid response format".
+        maxOutputTokens: 8192,
       },
     });
 

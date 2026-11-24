@@ -13,7 +13,6 @@ import mongoose from "mongoose";  // ← new
 import analyzeRoute from "./routes/analyze.js";
 import authRoute from "./routes/auth.js";
 import reportsRoute from "./routes/reports.js";    // ← new
-import vitalsRoute from "./models/Vitals.js";      // ← new
 import dashboardRoute from "./routes/dashboard.js"; // ← new
 
 // ── MongoDB connect ──────────────────────────────────────────
@@ -55,7 +54,6 @@ app.use(express.json({ limit: "10mb" }));
 app.use("/api/auth", authRoute);
 app.use("/api/analyze", analyzeRoute);
 app.use("/api/reports", reportsRoute);     // ← new
-app.use("/api/vitals", vitalsRoute);       // ← new
 app.use("/api/dashboard", dashboardRoute); // ← new
 
 const PORT = process.env.PORT || 3001;

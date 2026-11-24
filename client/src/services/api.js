@@ -43,10 +43,10 @@ export const analyzeRequest = async (payload) => {
 
     const data = await res.json();
     
-    return data?.analysis ?? data;
+    return data;
   }
 
-  
+
   const headers = { "Content-Type": "application/json" };
   if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -62,7 +62,7 @@ export const analyzeRequest = async (payload) => {
   }
 
   const data = await res.json();
-  return data?.analysis ?? data;
+  return data;
 };
 
 export const authRequest = async (endpoint, body) => {
