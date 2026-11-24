@@ -34,31 +34,42 @@ const fileToInlinePart = (filePath) => {
 
 const getModel = () => {
   const genAI = getGeminiClient();
-  return genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); // ✅ one place to change model
+  return genAI.getGenerativeModel({ model: "gemini-3.8-flash" }); // ✅ one place to change model
 };
 
 
 
-export const extractText = async (base64, mimeType) => {
-  try {
-    const model = getModel(); // ✅ fixed — was `gemini.getGenerativeModel` (gemini undefined)
+const MODEL_CHAIN = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
 
-    const result = await model.generateContent([
-      `You are a medical OCR engine. Extract ALL text from this medical document exactly as written.
+export const extractText = async (base64, mimeType) => {
+  const genAI = getGeminiClient();
+  const prompt = [
+    `You are a medical OCR engine. Extract ALL text from this medical document exactly as written.
 Include every word, number, dosage, lab value, date, and doctor/patient name.
 Preserve the original structure and layout as closely as possible.
 Return ONLY the raw extracted text — no commentary, no markdown, no formatting labels.`,
-      toInlinePart(base64, mimeType),
-    ]);
+    toInlinePart(base64, mimeType),
+  ];
 
-    const text = result.response.text()?.trim();
-    if (!text) throw new Error("Could not read any text from the uploaded document.");
-    return text;
+  let lastError = null;
 
-  } catch (err) {
-    console.error("[extractText] Error:", err.message);
-    throw new Error(`Text extraction failed: ${err.message}`);
+  for (const modelName of MODEL_CHAIN) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      const text = result.response.text()?.trim();
+      if (text) return text;
+    } catch (err) {
+      console.warn(`[extractText] ${modelName} failed:`, err.message);
+      lastError = err;
+      // If it's not a 503 or overload, rethrow immediately
+      if (!err.message?.includes("503") && !err.message?.includes("overloaded") && !err.message?.includes("RESOURCE_EXHAUSTED")) {
+        throw err;
+      }
+    }
   }
+
+  throw new Error(`Text extraction failed on all models: ${lastError?.message || "Unknown error"}`);
 };
 
 

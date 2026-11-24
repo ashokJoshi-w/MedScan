@@ -123,6 +123,8 @@ const parseJsonResponse = (raw) => {
   const clean = raw
     .replace(/^```(?:json)?\s*/i, "")
     .replace(/\s*```$/i, "")
+    .replace(/^\s*\(\s*/, "")
+    .replace(/\s*\)\s*$/, "")
     .trim();
 
   try {
@@ -192,20 +194,36 @@ export const analyzeText = async (text, mode) => {
 
   try {
     const gemini = getGemini();
-    const model = gemini.getGenerativeModel({
-      model: "gemini-2.5-flash",
-      generationConfig: {
-        temperature: 0.2,
-        topP: 0.8,
-        // Lab reports are bilingual (EN + HI) and can be long. 2048 was too
-        // small — Gemini cut off mid-JSON, which made JSON.parse fail and
-        // surfaced as "AI returned an invalid response format".
-        maxOutputTokens: 8192,
-      },
-    });
+    const MODEL_CHAIN = ["gemini-3.8-flash", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+    let raw = null;
+    let lastError = null;
 
-    const result = await model.generateContent(buildPrompt(text));
-    const raw = result.response.text();
+    for (const modelName of MODEL_CHAIN) {
+      try {
+        const model = gemini.getGenerativeModel({
+          model: modelName,
+          generationConfig: {
+            temperature: 0.2,
+            topP: 0.8,
+            maxOutputTokens: 8192,
+          },
+        });
+
+        const result = await model.generateContent(buildPrompt(text));
+        raw = result.response.text();
+        if (raw?.trim()) break;
+      } catch (err) {
+        console.warn(`[analyzeText] ${modelName} failed:`, err.message);
+        lastError = err;
+        if (!err.message?.includes("503") && !err.message?.includes("overloaded") && !err.message?.includes("RESOURCE_EXHAUSTED")) {
+          throw err;
+        }
+      }
+    }
+
+    if (!raw?.trim()) {
+      throw lastError || new Error("Gemini returned an empty response. Please try again.");
+    }
 
     if (!raw?.trim()) {
       throw new Error("Gemini returned an empty response. Please try again.");
