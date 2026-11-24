@@ -238,12 +238,86 @@ function formatAnalysisText(report) {
   return lines.join('\n').trim()
 }
 
-function getHealthScore(status) {
-  const s = status?.toLowerCase()
-  if (s === 'normal') return { score: 92, label: 'Good' }
-  if (s === 'abnormal') return { score: 68, label: 'Review' }
-  if (s === 'critical') return { score: 42, label: 'Alert' }
-  return { score: 75, label: 'Pending' }
+function getHealthScore(report) {
+  const { analysisResult, type, status } = report
+  const s = (status || 'normal').toLowerCase()
+
+  // Start from a perfect score and deduct based on actual findings
+  let score = 100
+  let criticalCount = 0
+  let abnormalCount = 0
+
+  // Lab report: inspect each test value
+  if (type === 'lab' && Array.isArray(analysisResult?.values)) {
+    analysisResult.values.forEach((v) => {
+      const st = (v.status || '').toLowerCase()
+      if (st === 'critical_high' || st === 'critical_low') {
+        criticalCount++
+        score -= 25
+      } else if (st === 'high' || st === 'low') {
+        abnormalCount++
+        score -= 10
+      } else if (st === 'normal') {
+        // no deduction
+      } else {
+        // unknown status — small deduction
+        score -= 5
+      }
+    })
+    // also factor in abnormalCount from the AI
+    const aiAbnormal = analysisResult?.abnormalCount || 0
+    if (aiAbnormal > abnormalCount + criticalCount) {
+      abnormalCount = aiAbnormal - (abnormalCount + criticalCount)
+      score -= abnormalCount * 5
+    }
+  }
+
+  // Vitals: inspect each reading
+  if (type === 'vitals' && Array.isArray(analysisResult?.readings)) {
+    analysisResult.readings.forEach((r) => {
+      const st = (r.status || '').toLowerCase()
+      if (st === 'critical') {
+        criticalCount++
+        score -= 25
+      } else if (st === 'high' || st === 'low' || st === 'concerning') {
+        abnormalCount++
+        score -= 10
+      }
+    })
+  }
+
+  // Prescription: factor in warnings count
+  if (type === 'prescription' && Array.isArray(analysisResult)) {
+    analysisResult.forEach((med) => {
+      if (med.warnings_en?.length) {
+        abnormalCount += med.warnings_en.length
+        score -= med.warnings_en.length * 5
+      }
+    })
+  }
+
+  // Overall requires-attention flag from the AI
+  if (analysisResult?.requiresAttention === true && criticalCount === 0 && abnormalCount === 0) {
+    score -= 15
+  }
+
+  // Clamp to 0-100
+  score = Math.max(0, Math.min(100, score))
+
+  let label
+  let color
+  if (score >= 85) {
+    label = 'Good'
+    color = 'healthy'
+  } else if (score >= 60) {
+    label = 'Review'
+    color = criticalCount > 0 ? 'warning' : 'abnormal'
+  } else {
+    label = 'Alert'
+    color = 'critical'
+  }
+
+  return { score, label, color, criticalCount, abnormalCount }
 }
 
 // ─── Report Detail Modal ────────────────────────────────────────────────────
@@ -520,7 +594,7 @@ export default function Reports() {
                 {reports.map((report) => {
                   const config = typeConfig[report.type] || typeConfig.lab
                   const TypeIcon = config.icon
-                  const { score, label } = getHealthScore(report.status)
+                  const { score, label, color } = getHealthScore(report)
 
                   return (
                     <tr key={report.id} className="hover:bg-surface/50 transition-colors">

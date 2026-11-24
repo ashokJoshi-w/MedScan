@@ -31,11 +31,79 @@ const quickActions = [
   { to: '/health-insights', label: 'View Insights', desc: 'AI recommendations', icon: Sparkles, color: 'bg-amber-50 text-warning' },
 ]
 
+/**
+ * Overall health score.
+ *
+ * Aggregates every individual report's score (normalised 0-100) instead of
+ * assuming a near-perfect baseline. Uses each report's actual value-level
+ * findings (high / low / critical) so the number moves with real data.
+ *
+ * Weighting: recent records count more than old ones, so a fresh critical
+ * result drags the score down even if the history was clean.
+ */
+function scoreReport(report) {
+  const values = report.analysisResult?.values
+  const readings = report.analysisResult?.readings
+
+  let score = 100
+  let critical = 0
+  let abnormal = 0
+
+  if (Array.isArray(values)) {
+    values.forEach((v) => {
+      const st = String(v.status || '').toLowerCase()
+      if (st === 'critical_high' || st === 'critical_low' || st === 'critical') {
+        critical++
+        score -= 25
+      } else if (st === 'high' || st === 'low' || st === 'concerning') {
+        abnormal++
+        score -= 10
+      }
+    })
+  }
+
+  if (Array.isArray(readings)) {
+    readings.forEach((r) => {
+      const st = String(r.status || '').toLowerCase()
+      if (st === 'critical') {
+        critical++
+        score -= 25
+      } else if (st === 'high' || st === 'low' || st === 'concerning') {
+        abnormal++
+        score -= 10
+      }
+    })
+  }
+
+  // Fall back to the coarse status when per-value data is missing
+  if (!Array.isArray(values) && !Array.isArray(readings)) {
+    const st = String(report.status || '').toLowerCase()
+    if (st === 'critical') score -= 40
+    else if (st === 'abnormal') score -= 20
+  }
+
+  if (report.analysisResult?.requiresAttention === true && critical === 0 && abnormal === 0) {
+    score -= 15
+  }
+
+  return Math.max(0, Math.min(100, score))
+}
+
 function computeHealthScore(stats) {
-  if (stats.total === 0) return 85
-  const abnormalCount = stats.recentActivity.filter((a) => a.status === 'abnormal' || a.status === 'critical').length
-  const ratio = abnormalCount / Math.max(stats.recentActivity.length, 1)
-  return Math.max(40, Math.min(98, Math.round(92 - ratio * 30)))
+  // No records yet — nothing to judge. Returning null lets the UI show a dash.
+  if (stats.total === 0 || !stats.recentActivity?.length) return null
+
+  // Newest first; weight recent entries more heavily.
+  const scored = stats.recentActivity.map((report, i) => {
+    const weight = 1 / (i + 1) // 1, 1/2, 1/3, ...
+    return { score: scoreReport(report), weight }
+  })
+
+  const totalWeight = scored.reduce((sum, s) => sum + s.weight, 0)
+  const weightedAvg =
+    scored.reduce((sum, s) => sum + s.score * s.weight, 0) / totalWeight
+
+  return Math.round(Math.max(0, Math.min(100, weightedAvg)))
 }
 
 export default function Dashboard() {

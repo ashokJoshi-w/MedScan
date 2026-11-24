@@ -41,6 +41,7 @@ export default function useDashboardStats() {
           title:  item.fileName || "Analysis record",
           date:   new Date(item.createdAt).toLocaleString("en-IN"),
           status: item.status || "normal",
+          analysisResult: item.analysisResult,
         }));
 
         // Trend calculation — compare this week vs last week from reports list

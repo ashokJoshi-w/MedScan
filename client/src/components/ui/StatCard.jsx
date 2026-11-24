@@ -87,6 +87,34 @@ export default function StatCard({
 }
 
 export function HealthScoreCard({ score, index = 0 }) {
+  // If score is null (no records yet), show a dash instead of a number
+  if (score === null) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: index * 0.06 }}
+        whileHover={{ y: -4, transition: { duration: 0.2 } }}
+        className="bg-white rounded-2xl p-6 border border-border shadow-card hover:shadow-elevated transition-shadow flex flex-col items-center justify-center"
+      >
+        <p className="text-sm text-ink-muted mb-4 self-start">Health Score</p>
+        <div className="relative w-28 h-28">
+          <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#E5E7EB" strokeWidth="8" />
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#E5E7EB" strokeWidth="8" strokeLinecap="round" strokeDasharray="125.66" strokeWidth="8" strokeLinecap="round" className="transition-all duration-1000" />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-2xl font-bold text-ink-faint">{' — '}</span>
+            <span className="text-xs text-ink-faint">/ 100</span>
+          </div>
+        </div>
+        <p className="text-xs text-ink-muted mt-4 text-center">
+          No records yet — upload your first report to see your score
+        </p>
+      </motion.div>
+    )
+  }
+
   const circumference = 2 * Math.PI * 42
   const offset = circumference - (score / 100) * circumference
   const color = score >= 80 ? 'text-success' : score >= 60 ? 'text-warning' : 'text-danger'
